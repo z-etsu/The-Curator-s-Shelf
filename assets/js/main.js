@@ -1,5 +1,23 @@
 // Main JavaScript functionality
 
+// Toggle user dropdown menu
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('active');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const userMenu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    
+    if (userMenu && dropdown && !userMenu.contains(event.target)) {
+        dropdown.classList.remove('active');
+    }
+});
+
 // Update cart count in navbar
 function updateCartCount() {
     fetch('/cart/get-count.php')

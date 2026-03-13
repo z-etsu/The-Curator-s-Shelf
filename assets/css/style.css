@@ -149,6 +149,57 @@ body {
     color: #000000;
     font-weight: 700;
     font-family: 'Playfair Display', serif;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.user-greeting:hover {
+    color: #666666;
+}
+
+/* User Menu Dropdown */
+.user-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    min-width: 150px;
+    box-shadow: var(--shadow);
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+    margin-top: 0.5rem;
+}
+
+.user-dropdown.active {
+    display: flex;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-light);
 }
 
 /* Buttons */

@@ -33,7 +33,13 @@ $currentUser = getCurrentUser();
             </nav>
             <div class="navbar-auth">
                 <?php if ($currentUser): ?>
-                    <span class="user-greeting">Welcome, <?php echo htmlspecialchars($currentUser['first_name'] ?? $currentUser['name']); ?>!</span>
+                    <div class="user-menu">
+                        <span class="user-greeting" onclick="toggleUserMenu()">Welcome, <?php echo htmlspecialchars($currentUser['first_name'] ?? $currentUser['name']); ?>!</span>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="/CURATOR/auth/settings.php" class="dropdown-item">Settings</a>
+                            <a href="/CURATOR/auth/logout.php" class="dropdown-item">Logout</a>
+                        </div>
+                    </div>
                     <?php if ($currentUser['role'] === 'admin'): ?>
                         <a href="/CURATOR/admin/dashboard.php" class="btn btn-small">Admin</a>
                     <?php endif; ?>
