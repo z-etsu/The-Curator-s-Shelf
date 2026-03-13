@@ -34,15 +34,29 @@ $stockText = $product['stock'] > 0 ? $product['stock'] . ' in stock' : 'Out of s
         <div class="product-meta">
             <div class="product-meta-item">
                 <span class="product-meta-label">Price:</span>
-                <span class="product-meta-value price">৳ <?php echo formatPrice($product['price']); ?></span>
+                <span class="product-meta-value price">₱ <?php echo formatPrice($product['price']); ?></span>
             </div>
             <div class="product-meta-item">
                 <span class="product-meta-label">Stock:</span>
                 <span class="product-meta-value <?php echo $stockStatus; ?>"><?php echo $stockText; ?></span>
             </div>
             <div class="product-meta-item">
-                <span class="product-meta-label">SKU:</span>
-                <span class="product-meta-value">PROD-<?php echo str_pad($product['id'], 5, '0', STR_PAD_LEFT); ?></span>
+                <span class="product-meta-label">Series:</span>
+                <span class="product-meta-value"><?php echo htmlspecialchars($product['series']); ?></span>
+            </div>
+            <div class="product-meta-item">
+                <span class="product-meta-label">Category:</span>
+                <span class="product-meta-value"><?php 
+                    // Get category main_category from category_id
+                    if ($product['category_id']) {
+                        $catStmt = $pdo->prepare('SELECT main_category FROM categories WHERE id = ?');
+                        $catStmt->execute([$product['category_id']]);
+                        $category = $catStmt->fetch();
+                        if ($category) {
+                            echo htmlspecialchars($category['main_category']);
+                        }
+                    }
+                ?></span>
             </div>
         </div>
 
@@ -57,6 +71,7 @@ $stockText = $product['stock'] > 0 ? $product['stock'] . ' in stock' : 'Out of s
                 </div>
                 <button type="submit" class="btn">Add to Cart</button>
             </form>
+            <button class="btn" onclick="buyNow(<?php echo $product['id']; ?>, document.getElementById('quantity').value)" style="margin-top: 0.5rem; background-color: #F5F5F3; color: #000000; border: 1px solid #000000;">Buy Now</button>
         <?php else: ?>
             <button class="btn" disabled style="opacity: 0.5; cursor: not-allowed;">Out of Stock</button>
         <?php endif; ?>

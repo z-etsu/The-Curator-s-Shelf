@@ -11,6 +11,7 @@ $currentUser = getCurrentUser();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta data-user-id="<?php echo isLoggedIn() ? $_SESSION['user_id'] ?? '' : ''; ?>">
     <title>The Curator's Shelf - Action Figures</title>
     <link rel="stylesheet" href="/CURATOR/assets/css/style.css">
 </head>

@@ -13,8 +13,38 @@ function updateCartCount() {
         .catch(error => console.log('Cart count fetch error:', error));
 }
 
+// Check if user is logged in
+function isUserLoggedIn() {
+    return !!document.querySelector('meta[data-user-id]');
+}
+
+// Show login required modal
+function showLoginModal() {
+    const modal = document.createElement('div');
+    modal.className = 'login-modal-overlay';
+    modal.innerHTML = `
+        <div class="login-modal">
+            <div class="login-modal-content">
+                <h3>Login Required</h3>
+                <p>Please log in or create an account to continue shopping.</p>
+                <div class="login-modal-buttons">
+                    <button class="btn" onclick="window.location.href='auth/login.php'; return false;">Login</button>
+                    <button class="btn" style="background-color: #F5F5F3; color: #000000; border: 1px solid #000000; margin-left: 1rem;" onclick="window.location.href='auth/register.php'; return false;">Register</button>
+                </div>
+                <button class="login-modal-close" onclick="this.closest('.login-modal-overlay').remove()">&times;</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
 // Add to cart
 function addToCart(productId, quantity = 1) {
+    if (!isUserLoggedIn()) {
+        showLoginModal();
+        return false;
+    }
+
     const formData = new FormData();
     formData.append('product_id', productId);
     formData.append('quantity', quantity);
@@ -28,6 +58,35 @@ function addToCart(productId, quantity = 1) {
             if (data.success) {
                 alert('Product added to cart!');
                 updateCartCount();
+            } else {
+                alert('Error adding to cart: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding to cart');
+        });
+}
+
+// Buy now - adds to cart and redirects to checkout
+function buyNow(productId, quantity = 1) {
+    if (!isUserLoggedIn()) {
+        showLoginModal();
+        return false;
+    }
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', quantity);
+
+    fetch('/cart/add.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/checkout/index.php';
             } else {
                 alert('Error adding to cart: ' + (data.message || 'Unknown error'));
             }

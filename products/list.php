@@ -31,7 +31,7 @@ $products = $stmt->fetchAll();
                         echo strlen($desc) > 80 ? substr($desc, 0, 80) . '...' : $desc; 
                         ?>
                     </p>
-                    <p class="product-price">৳ <?php echo formatPrice($product['price']); ?></p>
+                    <p class="product-price">₱ <?php echo formatPrice($product['price']); ?></p>
                     <div class="product-actions">
                         <button class="add-to-cart-btn" onclick="addToCart(<?php echo $product['id']; ?>)">Add to Cart</button>
                         <a href="/products/detail.php?id=<?php echo $product['id']; ?>" class="view-details-btn">Details</a>

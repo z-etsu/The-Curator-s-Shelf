@@ -92,14 +92,14 @@ if ($orderPlaced): ?>
                 <?php foreach ($cart as $item): ?>
                     <li style="padding: 0.5rem 0; border-bottom: 1px solid #ddd;">
                         <strong><?php echo htmlspecialchars($item['name']); ?></strong>
-                        <span style="float: right;">৳ <?php echo formatPrice($item['price'] * $item['quantity']); ?></span>
+                        <span style="float: right;">₱ <?php echo formatPrice($item['price'] * $item['quantity']); ?></span>
                         <div style="font-size: 0.9rem; color: #666;">Quantity: <?php echo $item['quantity']; ?></div>
                     </li>
                 <?php endforeach; ?>
             </ul>
             <div style="padding-top: 1rem; border-top: 2px solid #ddd; margin-top: 1rem; font-weight: 700; font-size: 1.1rem;">
                 <span>Total Amount: </span>
-                <span style="float: right; color: #0066cc;">৳ <?php echo formatPrice($cartTotal); ?></span>
+                <span style="float: right; color: #0066cc;">₱ <?php echo formatPrice($cartTotal); ?></span>
             </div>
         </div>
 
@@ -182,13 +182,13 @@ if ($orderPlaced): ?>
             <?php foreach ($cart as $productId => $item): ?>
                 <div class="review-item">
                     <span><?php echo htmlspecialchars($item['name']); ?> (x<?php echo $item['quantity']; ?>)</span>
-                    <span>৳ <?php echo formatPrice($item['price'] * $item['quantity']); ?></span>
+                    <span>₱ <?php echo formatPrice($item['price'] * $item['quantity']); ?></span>
                 </div>
             <?php endforeach; ?>
 
             <div class="review-total">
                 <span>Total:</span>
-                <span>৳ <?php echo formatPrice($cartTotal); ?></span>
+                <span>₱ <?php echo formatPrice($cartTotal); ?></span>
             </div>
 
             <div style="margin-top: 1rem; padding: 1rem; background: #f0f0f0; border-radius: 4px; font-size: 0.9rem; color: #666;">

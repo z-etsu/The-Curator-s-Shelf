@@ -32,7 +32,7 @@ $cartTotal = getCartTotal($cart);
             <?php foreach ($cart as $productId => $item): ?>
                 <tr>
                     <td class="cart-item-name"><?php echo htmlspecialchars($item['name']); ?></td>
-                    <td>৳ <?php echo formatPrice($item['price']); ?></td>
+                    <td>₱ <?php echo formatPrice($item['price']); ?></td>
                     <td>
                         <div class="quantity-control">
                             <button type="button" onclick="updateQuantity(<?php echo $productId; ?>, <?php echo $item['quantity'] - 1; ?>)">−</button>
@@ -40,7 +40,7 @@ $cartTotal = getCartTotal($cart);
                             <button type="button" onclick="updateQuantity(<?php echo $productId; ?>, <?php echo $item['quantity'] + 1; ?>)">+</button>
                         </div>
                     </td>
-                    <td>৳ <?php echo formatPrice($item['price'] * $item['quantity']); ?></td>
+                    <td>₱ <?php echo formatPrice($item['price'] * $item['quantity']); ?></td>
                     <td>
                         <button class="remove-btn" onclick="removeFromCart(<?php echo $productId; ?>)">Remove</button>
                     </td>
@@ -60,7 +60,7 @@ $cartTotal = getCartTotal($cart);
         </div>
         <div class="summary-row">
             <span>Tax:</span>
-            <span>৳ 0.00</span>
+            <span>₱ 0.00</span>
         </div>
         <div class="summary-row total">
             <span>Total:</span>

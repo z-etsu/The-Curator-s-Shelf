@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 
     <div class="auth-link">
-        Already have an account? <a href="/auth/login.php">Login here</a>
+        Already have an account? <a href="auth/login.php">Login here</a>
     </div>
 </div>
 

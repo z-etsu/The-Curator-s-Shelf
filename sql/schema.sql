@@ -13,6 +13,14 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Categories table
+CREATE TABLE IF NOT EXISTS categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    main_category ENUM('Anime', 'Comics', 'Video Games') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Products table (action figures)
 CREATE TABLE IF NOT EXISTS products (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -21,8 +29,12 @@ CREATE TABLE IF NOT EXISTS products (
     price DECIMAL(10, 2) NOT NULL,
     stock INT NOT NULL DEFAULT 0,
     image_url VARCHAR(500),
+    category_id INT,
+    series VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_name (name)
+    INDEX idx_name (name),
+    INDEX idx_category (category_id),
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 
 -- Cart items table (session-based cart storage)
@@ -60,16 +72,35 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
 );
 
--- Insert sample action figure data
-INSERT INTO products (name, description, price, stock, image_url) VALUES
-('Ichigo Kurosaki - Bleach Soul Society', 'Premium Bankai form Ichigo figure with detailed Zangetsu sword. Includes three interchangeable face plates and multiple hand sets for dynamic posing. Highly articulated with great attention to clothing details.', 85.99, 12, 'https://images.amiami.com/amixstaff/img-xx_large/img000052384434600.jpg'),
-('Goku Ultra Instinct - Dragon Ball Super', 'Dynamic ultra instinct Goku with signature pose and aura effects. Features incredible sculpting detail and includes interchangeable hands and blast effects. Perfect for any Dragon Ball collector.', 87.99, 14, 'https://images.hobbylink.tv/images/news/12023/1024/sh-figuarts-goku-ultra-instinct-event-exclusive-color-ver-2.jpg'),
-('Batman - Dark Knight Trilogy', 'Highly detailed Batman figure in classic tactical suit with multiple accessories including Batarangs and grappling gun. Excellent articulation for dynamic display poses.', 92.99, 10, 'https://images2.thumbs.redditmedia.com/DVKw3b_RdL_nYCy6PVoNhQlM2FE=/320x320/filters:no_upscale():max_bytes(150000):strip_icomment()/t5_2s6c0/styles/communityIcon_r4gzp0.png'),
-('Wonder Woman Classic - DC Comics', 'Iconic Wonder Woman figure with golden armor and lasso of truth. Premium paint applications and articulated frame allows for powerful action poses. Includes alternate hands and accessories.', 89.99, 9, 'https://images.goodsmile.info/images/product/20200206/10118/10118_main_00g.jpg'),
-('Naruto Uzumaki - Sage Mode', 'Detailed Naruto in Six Path Sage Mode with dynamic energy effects and multiple face plates. Includes signature hand sign accessories and optional chakra effects. Excellent sculpting and paint work.', 84.99, 16, 'https://images.amiami.com/amixstaff/img-xxl_large/img000046693597600.jpg'),
-('Superman - Justice League', 'Premium Superman figure with classic suit and powerful stance. Detailed cape sculpting and perfect proportions. Includes interchangeable hands for various poses and flying effects stand.', 94.99, 8, 'https://images.goodsmile.info/images/product/20150401/11556/11556_main_00g.jpg'),
-('The Flash - DC Comics Fastest Man', 'Dynamic Flash figure with speed force effects and lightning accessories. Highly detailed suit with excellent paint applications. Multiple hand sets for action poses.', 79.99, 18, 'https://images.amiami.com/amixstaff/img-xxl_large/img000041234567800.jpg'),
-('Iron Man Mark 85 - Avengers Endgame', 'Premium Iron Man figure with intricate suit details and LED light-up repulsor effects. Movie-accurate design with rotating chest piece. Highly collectible with great poseability.', 99.99, 7, 'https://images.goodsmile.info/images/product/20190829/10987/10987_main_01g.jpg'),
-('Madoka Kaname - Puella Magi', 'Beautiful Madoka figure in magical girl form with detailed costume and ribbon effects. Includes multiple interchangeable faces and weapon accessories. Excellent paint detail on outfit.', 74.99, 20, 'https://images.amiami.com/amixstaff/img-xxl_large/img000038765432100.jpg'),
-('Black Panther - Marvel Legends', 'Highly articulated Black Panther with detailed panther-head suit design and royal cloak. Includes multiple hand sets and vibranium effect accessories. Premium collectible piece.', 97.99, 11, 'https://images.goodsmile.info/images/product/20180615/10234/10234_main_00g.jpg');
+
+-- Insert categories
+INSERT IGNORE INTO categories (name, main_category) VALUES
+('Kaguya-sama: Love is War', 'Anime'),
+('Tokyo Ghoul', 'Anime'),
+('Bleach', 'Anime'),
+('Dragon Ball', 'Anime'),
+('Puella Magi Madoka Magica', 'Anime'),
+('Naruto', 'Anime'),
+('DC Comics', 'Comics'),
+('Marvel', 'Comics');
+
+-- Updating existing products (keeping IDs intact)
+UPDATE products SET name='Kaguya Shinomiya - Love is War', description='Stunning Kaguya figure in elegant school uniform with exceptional sculpting. Features detailed hair and clothing with multiple face plates for various expressions. Premium paint application with lustrous finish.', price=4500, stock=14, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000052847563200.jpg', category_id=25, series='Kaguya-sama: Love is War' WHERE id=1;
+UPDATE products SET name='Miyuki Shirogane - Genius Secretary', description='Detailed Miyuki figure displaying his characteristic cool composure. Includes blazer with excellent fabric texture and interchangeable hands. Perfect counterpart to Kaguya in any display.', price=4300, stock=16, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000053125478900.jpg', category_id=25, series='Kaguya-sama: Love is War' WHERE id=2;
+UPDATE products SET name='Ai Hayasaka - Maid Angel', description='Beautiful Hayasaka maid outfit figure with intricate lace details. Highly articulated with multiple interchangeable parts for dynamic poses. Includes signature twin-tails accessories.', price=4200, stock=12, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000050234891200.jpg', category_id=25, series='Kaguya-sama: Love is War' WHERE id=3;
+UPDATE products SET name='Chika Fujiwara - Heart Throb Idol', description='Cheerful Chika figure in her iconic pink dress with excellent color separation. Dynamic posing capable with flexible joints. Includes multiple hand sets for various gestures.', price=4000, stock=18, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000049876543100.jpg', category_id=25, series='Kaguya-sama: Love is War' WHERE id=4;
+UPDATE products SET name='Ken Kaneki - One-Eyed Ghoul', description='Iconic Kaneki figure in black suit with white hair perfectly sculpted. Includes signature kagune effect accessories with translucent painting. Excellent muscle detail and clothing textures.', price=4800, stock=11, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000051234987600.jpg', category_id=26, series='Tokyo Ghoul' WHERE id=5;
+UPDATE products SET name='Touka Kirishima - Ghoul Princess', description='Stunning Touka figure in casual outfit with detailed hair and beauty marks. Multiple face plates showing different expressions. Includes interchangeable hands for dynamic action poses.', price=4650, stock=13, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000052098765400.jpg', category_id=26, series='Tokyo Ghoul' WHERE id=6;
+UPDATE products SET name='Rize Kamishiro - Binge Eater', description='Elegant Rize figure in her iconic dress with ghoul characteristics emphasized. Premium paint application on hair with realistic shading. Includes alternate head pieces and accessories.', price=4500, stock=10, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000050567234800.jpg', category_id=26, series='Tokyo Ghoul' WHERE id=7;
+UPDATE products SET name='Eto White - One-Eyed Owl', description='Powerful Eto figure combining human and ghoul forms with incredible detail. Features articulated ghoul parts and multiple expression plates. Premium collectible with excellent presence on display.', price=4950, stock=9, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000053456789000.jpg', category_id=26, series='Tokyo Ghoul' WHERE id=8;
+UPDATE products SET name='Ichigo Kurosaki - Bleach Soul Society', description='Premium Bankai form Ichigo figure with detailed Zangetsu sword. Includes three interchangeable face plates and multiple hand sets for dynamic posing. Highly articulated with great attention to clothing details.', price=4850, stock=12, image_url='https://images.amiami.com/amixstaff/img-xx_large/img000052384434600.jpg', category_id=27, series='Bleach' WHERE id=9;
+UPDATE products SET name='Goku Ultra Instinct - Dragon Ball Super', description='Dynamic ultra instinct Goku with signature pose and aura effects. Features incredible sculpting detail and includes interchangeable hands and blast effects. Perfect for any Dragon Ball collector.', price=4950, stock=14, image_url='https://images.hobbylink.tv/images/news/12023/1024/sh-figuarts-goku-ultra-instinct-event-exclusive-color-ver-2.jpg', category_id=28, series='Dragon Ball' WHERE id=10;
+UPDATE products SET name='Batman - Dark Knight Trilogy', description='Highly detailed Batman figure in classic tactical suit with exceptional sculpting. Includes detailed cape with excellent fabric texture and multiple interchangeable hands. Premium paint application with dark metallic finish.', price=5207, stock=10, image_url='https://images2.thumbs.redditmedia.com/DVKw3b_RdL.jpg', category_id=31, series='DC Comics' WHERE id=11;
+UPDATE products SET name='Wonder Woman Classic - DC Comics', description='Iconic Wonder Woman figure with golden armor and lasso. Features excellent color separation and dynamic posing capable with multiple interchangeable hands and weapons.', price=5039, stock=9, image_url='https://images.goodsmile.info/images/product/20000.jpg', category_id=31, series='DC Comics' WHERE id=12;
+UPDATE products SET name='Naruto Uzumaki - Sage Mode', description='Detailed Naruto in Six Path Sage Mode with dynamic positioning capabilities. Includes signature rasengan effect accessories with translucent painting and multiple hand sets for various gestures.', price=4759, stock=16, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000052847563200.jpg', category_id=30, series='Naruto' WHERE id=13;
+UPDATE products SET name='Superman - Justice League', description='Premium Superman figure in classic suit and cape with incredible detail and presence. Includes alternate head pieces and multiple hand sets for dynamic heroic poses.', price=5319, stock=8, image_url='https://images.goodsmile.info/images/product/20150.jpg', category_id=31, series='DC Comics' WHERE id=14;
+UPDATE products SET name='The Flash - DC Comics Fastest Man', description='Dynamic Flash figure with speed force effects and flexible joints for action poses. Features detailed suit paintwork and includes multiple interchangeable hands and blast effects.', price=4479, stock=18, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000052847563200.jpg', category_id=31, series='DC Comics' WHERE id=15;
+UPDATE products SET name='Iron Man Mark 85 - Avengers Endgame', description='Premium Iron Man Mark 85 figure with intricate suit detail and light-up effects. Includes multiple interchangeable hands, detachable armor parts, and excellent paint application with metallic finish.', price=5599, stock=7, image_url='https://images.goodsmile.info/images/product/20190.jpg', category_id=32, series='Marvel' WHERE id=16;
+UPDATE products SET name='Madoka Kaname - Puella Magi', description='Beautiful Madoka figure in magical girl form with excellent color separation and detail. Includes multiple interchangeable face plates and hand sets for dynamic poses.', price=4199, stock=20, image_url='https://images.amiami.com/amixstaff/img-xxl_large/img000052847563200.jpg', category_id=29, series='Puella Magi Madoka Magica' WHERE id=17;
+UPDATE products SET name='Black Panther - Marvel Legends', description='Highly articulated Black Panther with detailed tactical suit and claw weapons. Features excellent muscle detail and includes multiple interchangeable parts for dynamic action poses.', price=5487, stock=11, image_url='https://images2.thumbs.redditmedia.com/DVKw3b_RdL.jpg', category_id=32, series='Marvel' WHERE id=18;
 
