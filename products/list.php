@@ -34,7 +34,7 @@ $products = $stmt->fetchAll();
                     <p class="product-price">₱ <?php echo formatPrice($product['price']); ?></p>
                     <div class="product-actions">
                         <button class="add-to-cart-btn" onclick="addToCart(<?php echo $product['id']; ?>)">Add to Cart</button>
-                        <a href="/products/detail.php?id=<?php echo $product['id']; ?>" class="view-details-btn">Details</a>
+                        <a href="/CURATOR/products/detail.php?id=<?php echo $product['id']; ?>" class="view-details-btn">Details</a>
                     </div>
                 </div>
             </div>
