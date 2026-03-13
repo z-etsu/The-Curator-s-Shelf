@@ -40,7 +40,7 @@ document.addEventListener('click', function(event) {
 
 // Update cart count in navbar
 function updateCartCount() {
-    fetch('/cart/get-count.php')
+    fetch('/CURATOR/cart/get-count.php')
         .then(response => response.json())
         .then(data => {
             const cartCount = document.getElementById('cartCount');
@@ -88,7 +88,7 @@ function addToCart(productId, quantity = 1) {
     formData.append('product_id', productId);
     formData.append('quantity', quantity);
 
-    fetch('/cart/add.php', {
+    fetch('/CURATOR/cart/add.php', {
         method: 'POST',
         body: formData
     })
@@ -118,14 +118,14 @@ function buyNow(productId, quantity = 1) {
     formData.append('product_id', productId);
     formData.append('quantity', quantity);
 
-    fetch('/cart/add.php', {
+    fetch('/CURATOR/cart/add.php', {
         method: 'POST',
         body: formData
     })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.location.href = '/checkout/index.php';
+                window.location.href = '/CURATOR/checkout/index.php';
             } else {
                 alert('Error adding to cart: ' + (data.message || 'Unknown error'));
             }
@@ -141,7 +141,7 @@ function removeFromCart(cartItemId) {
     const formData = new FormData();
     formData.append('cart_item_id', cartItemId);
 
-    fetch('/cart/remove.php', {
+    fetch('/CURATOR/cart/remove.php', {
         method: 'POST',
         body: formData
     })
@@ -167,7 +167,7 @@ function updateCartQuantity(cartItemId, quantity) {
     formData.append('cart_item_id', cartItemId);
     formData.append('quantity', quantity);
 
-    fetch('/cart/update.php', {
+    fetch('/CURATOR/cart/update.php', {
         method: 'POST',
         body: formData
     })

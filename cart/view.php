@@ -15,7 +15,7 @@ $cartTotal = getCartTotal($cart);
     <div class="empty-cart">
         <h2>Your Cart is Empty</h2>
         <p>Add some amazing action figures to get started!</p>
-        <a href="/products/list.php" class="btn">Continue Shopping</a>
+        <a href="/CURATOR/products/list.php" class="btn">Continue Shopping</a>
     </div>
 <?php else: ?>
     <table class="cart-table">
@@ -52,7 +52,7 @@ $cartTotal = getCartTotal($cart);
     <div class="cart-summary">
         <div class="summary-row">
             <span>Subtotal:</span>
-            <span>৳ <?php echo formatPrice($cartTotal); ?></span>
+            <span>₱ <?php echo formatPrice($cartTotal); ?></span>
         </div>
         <div class="summary-row">
             <span>Shipping:</span>
@@ -64,11 +64,11 @@ $cartTotal = getCartTotal($cart);
         </div>
         <div class="summary-row total">
             <span>Total:</span>
-            <span>৳ <?php echo formatPrice($cartTotal); ?></span>
+            <span>₱ <?php echo formatPrice($cartTotal); ?></span>
         </div>
         <br>
-        <a href="/checkout/index.php" class="btn" style="width: 100%; text-align: center;">Proceed to Checkout</a>
-        <a href="/products/list.php" class="btn btn-outline" style="width: 100%; text-align: center; margin-top: 0.5rem;">Continue Shopping</a>
+        <a href="/CURATOR/checkout/index.php" class="btn" style="width: 100%; text-align: center;">Proceed to Checkout</a>
+        <a href="/CURATOR/products/list.php" class="btn btn-outline" style="width: 100%; text-align: center; margin-top: 0.5rem;">Continue Shopping</a>
     </div>
 <?php endif; ?>
 
@@ -82,7 +82,7 @@ function updateQuantity(productId, newQuantity) {
     formData.append('product_id', productId);
     formData.append('quantity', newQuantity);
 
-    fetch('/cart/update.php', {
+    fetch('/CURATOR/cart/update.php', {
         method: 'POST',
         body: formData
     })
@@ -105,7 +105,7 @@ function removeFromCart(productId) {
         const formData = new FormData();
         formData.append('product_id', productId);
 
-        fetch('/cart/remove.php', {
+        fetch('/CURATOR/cart/remove.php', {
             method: 'POST',
             body: formData
         })
