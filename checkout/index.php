@@ -19,13 +19,29 @@ if (!isLoggedIn()) {
 }
 
 $user = getCurrentUser();
-$cartTotal = getCartTotal($cart);
 $errors = [];
 $orderPlaced = false;
 $orderId = null;
 
+// Get selected items from POST
+$selectedItems = $_POST['selected_items'] ?? [];
+if (empty($selectedItems)) {
+    redirect('/CURATOR/cart/view.php');
+}
+
+// Filter cart to only include selected items
+$selectedCart = [];
+foreach ($selectedItems as $itemId) {
+    $itemId = intval($itemId);
+    if (isset($cart[$itemId])) {
+        $selectedCart[$itemId] = $cart[$itemId];
+    }
+}
+
+$cartTotal = getCartTotal($selectedCart);
+
 // Handle checkout form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     // Validate form inputs
     $firstName = sanitize($_POST['first_name'] ?? '');
     $lastName = sanitize($_POST['last_name'] ?? '');
@@ -57,14 +73,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$user['id'], $cartTotal, 'completed', $shippingAddress]);
             $newOrderId = $pdo->lastInsertId();
 
-            // Add order items
-            foreach ($cart as $productId => $item) {
+            // Add order items from selected cart only
+            foreach ($selectedCart as $productId => $item) {
                 $stmt = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)');
                 $stmt->execute([$newOrderId, $productId, $item['quantity'], $item['price']]);
             }
 
-            // Clear cart from session
-            unset($_SESSION['cart']);
+            // Remove selected items from session cart
+            foreach ($selectedItems as $itemId) {
+                $itemId = intval($itemId);
+                unset($_SESSION['cart'][$itemId]);
+            }
 
             $orderPlaced = true;
             $orderId = $newOrderId;
@@ -89,7 +108,7 @@ if ($orderPlaced): ?>
         <div style="margin: 2rem 0; text-align: left; background: #f5f5f5; padding: 1rem; border-radius: 4px;">
             <h4>Order Summary</h4>
             <ul style="list-style: none; margin-top: 1rem;">
-                <?php foreach ($cart as $item): ?>
+                <?php foreach ($selectedCart as $item): ?>
                     <li style="padding: 0.5rem 0; border-bottom: 1px solid #ddd;">
                         <strong><?php echo htmlspecialchars($item['name']); ?></strong>
                         <span style="float: right;">₱ <?php echo formatPrice($item['price'] * $item['quantity']); ?></span>
@@ -123,6 +142,11 @@ if ($orderPlaced): ?>
 
     <div class="checkout-container">
         <form method="POST" class="checkout-form">
+            <!-- Hidden inputs for selected items -->
+            <?php foreach ($selectedItems as $itemId): ?>
+                <input type="hidden" name="selected_items[]" value="<?php echo intval($itemId); ?>">
+            <?php endforeach; ?>
+            
             <h3>Shipping Information</h3>
 
             <div class="form-row">
@@ -169,17 +193,17 @@ if ($orderPlaced): ?>
                 </div>
                 <div class="form-group">
                     <label for="country">Country *</label>
-                    <input type="text" id="country" name="country" value="Bangladesh" required>
+                    <input type="text" id="country" name="country" value="Philippines" required>
                 </div>
             </div>
 
-            <button type="submit" class="btn" style="width: 100%; margin-top: 2rem;">Complete Order</button>
+            <button type="submit" name="place_order" class="btn" style="width: 100%; margin-top: 2rem;">Complete Order</button>
         </form>
 
         <div class="checkout-review">
             <h3>Order Summary</h3>
             
-            <?php foreach ($cart as $productId => $item): ?>
+            <?php foreach ($selectedCart as $productId => $item): ?>
                 <div class="review-item">
                     <span><?php echo htmlspecialchars($item['name']); ?> (x<?php echo $item['quantity']; ?>)</span>
                     <span>₱ <?php echo formatPrice($item['price'] * $item['quantity']); ?></span>

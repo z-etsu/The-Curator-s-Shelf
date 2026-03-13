@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Check if product exists and has stock
-    $stmt = $pdo->prepare('SELECT id, name, price, stock FROM products WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT id, name, price, stock, image_url FROM products WHERE id = ?');
     $stmt->execute([$productId]);
     $product = $stmt->fetch();
 
@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['cart'][$productId] = [
             'name' => $product['name'],
             'price' => $product['price'],
+            'image_url' => $product['image_url'],
             'quantity' => $quantity
         ];
     }

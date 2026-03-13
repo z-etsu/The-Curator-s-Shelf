@@ -18,66 +18,103 @@ $cartTotal = getCartTotal($cart);
         <a href="/CURATOR/products/list.php" class="btn">Continue Shopping</a>
     </div>
 <?php else: ?>
-    <table class="cart-table">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($cart as $productId => $item): ?>
+    <form id="cartForm" method="POST" action="/CURATOR/checkout/index.php">
+        <table class="cart-table">
+            <thead>
                 <tr>
-                    <td class="cart-item-name"><?php echo htmlspecialchars($item['name']); ?></td>
-                    <td>₱ <?php echo formatPrice($item['price']); ?></td>
-                    <td>
-                        <div class="quantity-control">
-                            <button type="button" onclick="updateQuantity(<?php echo $productId; ?>, <?php echo $item['quantity'] - 1; ?>)">−</button>
-                            <input type="number" value="<?php echo $item['quantity']; ?>" readonly>
-                            <button type="button" onclick="updateQuantity(<?php echo $productId; ?>, <?php echo $item['quantity'] + 1; ?>)">+</button>
-                        </div>
-                    </td>
-                    <td>₱ <?php echo formatPrice($item['price'] * $item['quantity']); ?></td>
-                    <td>
-                        <button class="remove-btn" onclick="removeFromCart(<?php echo $productId; ?>)">Remove</button>
-                    </td>
+                    <th style="width: 40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                    <th style="width: 200px;">Image</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($cart as $productId => $item): ?>
+                    <tr>
+                        <td><input type="checkbox" class="item-select" name="selected_items[]" value="<?php echo $productId; ?>" onchange="updateCheckboxState()"></td>
+                        <td>
+                            <img src="<?php echo htmlspecialchars($item['image_url']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" style="width: 200px; height: auto; object-fit: cover;">
+                        </td>
+                        <td class="cart-item-name"><?php echo htmlspecialchars($item['name']); ?></td>
+                        <td>₱ <?php echo formatPrice($item['price']); ?></td>
+                        <td>
+                            <div class="quantity-control">
+                                <button type="button" onclick="handleQuantityChange(<?php echo $productId; ?>, <?php echo $item['quantity'] - 1; ?>)">−</button>
+                                <input type="number" value="<?php echo $item['quantity']; ?>" readonly>
+                                <button type="button" onclick="handleQuantityChange(<?php echo $productId; ?>, <?php echo $item['quantity'] + 1; ?>)">+</button>
+                            </div>
+                        </td>
+                        <td>₱ <?php echo formatPrice($item['price'] * $item['quantity']); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
-    <div class="cart-summary">
-        <div class="summary-row">
-            <span>Subtotal:</span>
-            <span>₱ <?php echo formatPrice($cartTotal); ?></span>
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span id="subtotalPrice">₱ <?php echo formatPrice($cartTotal); ?></span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping:</span>
+                <span>Free</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax:</span>
+                <span>₱ 0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span id="totalPrice">₱ <?php echo formatPrice($cartTotal); ?></span>
+            </div>
+            <br>
+            <button type="submit" class="btn" style="width: 100%; text-align: center;" onclick="return validateCheckout()">Proceed to Checkout</button>
+            <a href="/CURATOR/products/list.php" class="btn btn-outline" style="width: 100%; text-align: center; margin-top: 0.5rem;">Continue Shopping</a>
         </div>
-        <div class="summary-row">
-            <span>Shipping:</span>
-            <span>Free</span>
-        </div>
-        <div class="summary-row">
-            <span>Tax:</span>
-            <span>₱ 0.00</span>
-        </div>
-        <div class="summary-row total">
-            <span>Total:</span>
-            <span>₱ <?php echo formatPrice($cartTotal); ?></span>
-        </div>
-        <br>
-        <a href="/CURATOR/checkout/index.php" class="btn" style="width: 100%; text-align: center;">Proceed to Checkout</a>
-        <a href="/CURATOR/products/list.php" class="btn btn-outline" style="width: 100%; text-align: center; margin-top: 0.5rem;">Continue Shopping</a>
-    </div>
+    </form>
 <?php endif; ?>
 
 <script>
-function updateQuantity(productId, newQuantity) {
-    if (newQuantity < 1) {
-        alert('Quantity must be at least 1');
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.item-select');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    updateCheckboxState();
+}
+
+function updateCheckboxState() {
+    const checkboxes = document.querySelectorAll('.item-select');
+    const selectAll = document.getElementById('selectAll');
+    const checkedCount = document.querySelectorAll('.item-select:checked').length;
+    selectAll.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
+}
+
+function validateCheckout() {
+    const selectedItems = document.querySelectorAll('.item-select:checked');
+    if (selectedItems.length === 0) {
+        alert('Please select at least one item to checkout');
+        return false;
+    }
+    return true;
+}
+
+function handleQuantityChange(productId, newQuantity) {
+    if (newQuantity < 0 || newQuantity === 0) {
+        showConfirmModal(
+            'Remove Item',
+            'Are you sure you want to remove this item from your cart?',
+            'Remove',
+            function() {
+                removeFromCart(productId);
+            }
+        );
         return;
     }
+
     const formData = new FormData();
     formData.append('product_id', productId);
     formData.append('quantity', newQuantity);
@@ -101,27 +138,25 @@ function updateQuantity(productId, newQuantity) {
 }
 
 function removeFromCart(productId) {
-    if (confirm('Remove this item from cart?')) {
-        const formData = new FormData();
-        formData.append('product_id', productId);
+    const formData = new FormData();
+    formData.append('product_id', productId);
 
-        fetch('/CURATOR/cart/remove.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error removing from cart');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+    fetch('/CURATOR/cart/remove.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
                 alert('Error removing from cart');
-            });
-    }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error removing from cart');
+        });
 }
 </script>
 

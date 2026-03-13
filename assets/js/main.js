@@ -77,6 +77,27 @@ function showLoginModal() {
     document.body.appendChild(modal);
 }
 
+// Show generic confirmation modal
+function showConfirmModal(title, message, confirmText, confirmCallback, cancelText = 'Cancel') {
+    const modal = document.createElement('div');
+    modal.className = 'login-modal-overlay';
+    modal.innerHTML = `
+        <div class="login-modal">
+            <div class="login-modal-content">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="login-modal-buttons">
+                    <button class="btn" onclick="confirmCallback(); this.closest('.login-modal-overlay').remove(); return false;">${confirmText}</button>
+                    <button class="btn btn-secondary" onclick="this.closest('.login-modal-overlay').remove(); return false;">${cancelText}</button>
+                </div>
+                <button class="login-modal-close" onclick="this.closest('.login-modal-overlay').remove()">&times;</button>
+            </div>
+        </div>
+    `;
+    window.confirmCallback = confirmCallback;
+    document.body.appendChild(modal);
+}
+
 // Add to cart
 function addToCart(productId, quantity = 1) {
     if (!isUserLoggedIn()) {
