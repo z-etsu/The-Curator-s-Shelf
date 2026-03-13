@@ -8,6 +8,26 @@ function toggleUserMenu() {
     }
 }
 
+// Show logout confirmation modal
+function showLogoutConfirm() {
+    const modal = document.createElement('div');
+    modal.className = 'login-modal-overlay';
+    modal.innerHTML = `
+        <div class="login-modal">
+            <div class="login-modal-content">
+                <h3>Confirm Logout</h3>
+                <p>Are you sure you want to log out?</p>
+                <div class="login-modal-buttons">
+                    <button class="btn" onclick="window.location.href='/CURATOR/auth/logout.php'; return false;">Yes, Logout</button>
+                    <button class="btn btn-secondary" onclick="this.closest('.login-modal-overlay').remove(); return false;">Cancel</button>
+                </div>
+                <button class="login-modal-close" onclick="this.closest('.login-modal-overlay').remove()">&times;</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
 // Close dropdown when clicking outside
 document.addEventListener('click', function(event) {
     const userMenu = document.querySelector('.user-menu');

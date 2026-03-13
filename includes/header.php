@@ -37,7 +37,7 @@ $currentUser = getCurrentUser();
                         <span class="user-greeting" onclick="toggleUserMenu()">Welcome, <?php echo htmlspecialchars($currentUser['first_name'] ?? $currentUser['name']); ?>!</span>
                         <div class="user-dropdown" id="userDropdown">
                             <a href="/CURATOR/auth/settings.php" class="dropdown-item">Settings</a>
-                            <a href="/CURATOR/auth/logout.php" class="dropdown-item">Logout</a>
+                            <a href="javascript:void(0);" onclick="showLogoutConfirm()" class="dropdown-item">Logout</a>
                         </div>
                     </div>
                     <?php if ($currentUser['role'] === 'admin'): ?>
