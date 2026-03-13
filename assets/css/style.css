@@ -1,5 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #FFFFFF;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #000000;
+    border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #333333;
+}
+
+/* Firefox Scrollbar */
+* {
+    scrollbar-color: #000000 #FFFFFF;
+    scrollbar-width: thin;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -121,8 +145,10 @@ body {
 }
 
 .user-greeting {
-    font-size: 0.9rem;
-    color: var(--text-light);
+    font-size: 1rem;
+    color: #000000;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
 }
 
 /* Buttons */
@@ -752,7 +778,7 @@ body {
 
 .form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
 }
 
@@ -916,6 +942,152 @@ body {
 
 .footer-section ul li a:hover {
     color: white;
+}
+
+/* Product Detail Buttons */
+.product-button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.product-button-group .btn {
+    flex: 1;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-secondary {
+    background-color: #F5F5F3;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
+.btn-secondary:hover {
+    background-color: #EFEFEF;
+    color: #000000;
+}
+
+/* Login Modal */
+.login-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.login-modal {
+    background-color: white;
+    border-radius: 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+}
+
+.login-modal-content {
+    padding: 2.5rem 2rem;
+    text-align: center;
+}
+
+.login-modal-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.login-modal-content p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.login-modal-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.login-modal-buttons .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+.login-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-modal-close:hover {
+    color: #000;
+}
+
+/* Success Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: white;
+    border-radius: 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content {
+    padding: 2.5rem 2rem;
+    text-align: center;
+}
+
+.modal-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.modal-content p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.modal-content .btn {
+    width: 100%;
 }
 
 .footer-bottom {

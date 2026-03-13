@@ -7,6 +7,7 @@ startSession();
 
 $errors = [];
 $email = '';
+$showSuccessModal = false;
 
 // If already logged in, redirect to home
 if (isLoggedIn()) {
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Check credentials
     if (empty($errors)) {
-        $stmt = $pdo->prepare('SELECT id, email, password_hash, name, role FROM users WHERE email = ?');
+        $stmt = $pdo->prepare('SELECT id, email, password_hash, first_name, role FROM users WHERE email = ?');
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
@@ -36,17 +37,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Login successful
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_first_name'] = $user['first_name'];
             $_SESSION['user_role'] = $user['role'];
-
-            // Redirect to home or checkout if coming from cart
-            $redirect = isset($_GET['redirect']) ? $_GET['redirect'] : '/index.php';
-            redirect($redirect);
+            $showSuccessModal = true;
         } else {
             $errors[] = 'Invalid email or password';
         }
     }
 }
 ?>
+
+<?php if ($showSuccessModal): ?>
+<div class="modal-overlay" id="successModal">
+    <div class="modal">
+        <div class="modal-content">
+            <h3>Login Successful!</h3>
+            <p>Welcome back, <?php echo htmlspecialchars($_SESSION['user_first_name']); ?>!</p>
+            <button class="btn" onclick="window.location.href='/CURATOR/index.php'">Go to Home</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            window.location.href = '/CURATOR/index.php';
+        }, 2000);
+    });
+</script>
+<?php else: ?>
 
 <div class="auth-container">
     <h2>Login</h2>
@@ -59,23 +77,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
-    <form method="POST">
+    <form method="POST" autocomplete="off">
         <div class="form-group">
             <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
+            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" autocomplete="off" required>
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" autocomplete="off" required>
         </div>
 
         <button type="submit" class="btn" style="width: 100%;">Login</button>
     </form>
 
     <div class="auth-link">
-        Don't have an account? <a href="auth/register.php">Sign up here</a>
+        Don't have an account? <a href="register.php">Sign up here</a>
     </div>
 </div>
+
+<?php endif; ?>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

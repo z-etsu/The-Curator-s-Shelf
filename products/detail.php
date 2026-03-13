@@ -69,9 +69,11 @@ $stockText = $product['stock'] > 0 ? $product['stock'] . ' in stock' : 'Out of s
                     <label for="quantity">Quantity:</label>
                     <input type="number" id="quantity" name="quantity" min="1" max="<?php echo $product['stock']; ?>" value="1" required>
                 </div>
-                <button type="submit" class="btn">Add to Cart</button>
+                <div class="product-button-group">
+                    <button type="submit" class="btn">Add to Cart</button>
+                    <button type="button" class="btn btn-secondary" onclick="buyNow(<?php echo $product['id']; ?>, document.getElementById('quantity').value)">Buy Now</button>
+                </div>
             </form>
-            <button class="btn" onclick="buyNow(<?php echo $product['id']; ?>, document.getElementById('quantity').value)" style="margin-top: 0.5rem; background-color: #F5F5F3; color: #000000; border: 1px solid #000000;">Buy Now</button>
         <?php else: ?>
             <button class="btn" disabled style="opacity: 0.5; cursor: not-allowed;">Out of Stock</button>
         <?php endif; ?>

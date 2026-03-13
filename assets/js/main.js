@@ -15,7 +15,8 @@ function updateCartCount() {
 
 // Check if user is logged in
 function isUserLoggedIn() {
-    return !!document.querySelector('meta[data-user-id]');
+    const userIdMeta = document.querySelector('meta[data-user-id]');
+    return userIdMeta && userIdMeta.getAttribute('data-user-id') !== '';
 }
 
 // Show login required modal
@@ -29,7 +30,7 @@ function showLoginModal() {
                 <p>Please log in or create an account to continue shopping.</p>
                 <div class="login-modal-buttons">
                     <button class="btn" onclick="window.location.href='auth/login.php'; return false;">Login</button>
-                    <button class="btn" style="background-color: #F5F5F3; color: #000000; border: 1px solid #000000; margin-left: 1rem;" onclick="window.location.href='auth/register.php'; return false;">Register</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='auth/register.php'; return false;">Register</button>
                 </div>
                 <button class="login-modal-close" onclick="this.closest('.login-modal-overlay').remove()">&times;</button>
             </div>

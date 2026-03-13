@@ -17,7 +17,7 @@ function getCurrentUser() {
     startSession();
     if (isLoggedIn()) {
         global $pdo;
-        $stmt = $pdo->prepare('SELECT id, email, name, role FROM users WHERE id = ?');
+        $stmt = $pdo->prepare('SELECT id, email, first_name, last_name, role FROM users WHERE id = ?');
         $stmt->execute([$_SESSION['user_id']]);
         return $stmt->fetch();
     }
