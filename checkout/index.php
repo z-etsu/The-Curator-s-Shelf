@@ -124,8 +124,8 @@ if ($orderPlaced): ?>
 
         <p style="color: #666; margin-bottom: 2rem;">A confirmation email has been sent to your email address. You can track your order status anytime.</p>
         
-        <a href="/index.php" class="btn">Back to Home</a>
-        <a href="/products/list.php" class="btn btn-outline" style="margin-left: 1rem;">Continue Shopping</a>
+        <a href="/CURATOR/index.php" class="btn">Back to Home</a>
+        <a href="/CURATOR/products/list.php" class="btn btn-outline" style="margin-left: 1rem;">Continue Shopping</a>
     </div>
 
 <?php else: ?>
@@ -152,11 +152,11 @@ if ($orderPlaced): ?>
             <div class="form-row">
                 <div class="form-group">
                     <label for="first_name">First Name *</label>
-                    <input type="text" id="first_name" name="first_name" required>
+                    <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
                 </div>
                 <div class="form-group">
                     <label for="last_name">Last Name *</label>
-                    <input type="text" id="last_name" name="last_name" required>
+                    <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
                 </div>
             </div>
 
