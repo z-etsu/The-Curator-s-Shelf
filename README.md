@@ -129,6 +129,4 @@ The application uses a MySQL database with the following structure:
 
 ---
 
-## Questions?
 
-If you run into any issues, let me know and we'll debug together!
