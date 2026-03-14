@@ -11,7 +11,7 @@ $showSuccessModal = false;
 
 // If already logged in, redirect to home
 if (isLoggedIn()) {
-    redirect('/index.php');
+    redirect('/CURATOR/index.php');
 }
 
 // Handle login
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" autocomplete="off" required>
+            <input type="password" id="password" name="password" autocomplete="new-password" required>
         </div>
 
         <button type="submit" class="btn" style="width: 100%;">Login</button>

@@ -109,6 +109,19 @@ function addToCart(productId, quantity = 1) {
         return false;
     }
 
+    // Show confirmation modal
+    showConfirmModal(
+        'Add to Cart',
+        'Do you want to add this item to your cart?',
+        'Yes, Add',
+        function() {
+            performAddToCart(productId, quantity);
+        }
+    );
+}
+
+// Perform the actual add to cart after confirmation
+function performAddToCart(productId, quantity = 1) {
     const formData = new FormData();
     formData.append('product_id', productId);
     formData.append('quantity', quantity);
@@ -139,6 +152,19 @@ function buyNow(productId, quantity = 1) {
         return false;
     }
 
+    // Show confirmation modal
+    showConfirmModal(
+        'Buy Now',
+        'Add this item to your cart and proceed to checkout?',
+        'Yes, Buy Now',
+        function() {
+            performBuyNow(productId, quantity);
+        }
+    );
+}
+
+// Perform the actual buy now after confirmation
+function performBuyNow(productId, quantity = 1) {
     const formData = new FormData();
     formData.append('product_id', productId);
     formData.append('quantity', quantity);
@@ -150,7 +176,7 @@ function buyNow(productId, quantity = 1) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.location.href = '/CURATOR/checkout/index.php';
+                window.location.href = '/CURATOR/cart/view.php';
             } else {
                 alert('Error adding to cart: ' + (data.message || 'Unknown error'));
             }
