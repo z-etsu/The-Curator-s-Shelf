@@ -55,11 +55,17 @@ error_log('DEBUG cart/view.php - Cart keys: ' . implode(', ', array_keys($cart))
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </form>
+<?php endif; ?>
 
-        <div class="cart-summary">
+<!-- Sticky Bottom Summary Bar -->
+<?php if (!$cartEmpty): ?>
+<div class="sticky-cart-summary">
+    <div class="summary-content">
+        <div class="summary-stats">
             <div class="summary-row">
                 <span>Subtotal:</span>
-                <span id="subtotalPrice">₱ <?php echo formatPrice($cartTotal); ?></span>
+                <span id="stickySubtotalPrice">₱ 0.00</span>
             </div>
             <div class="summary-row">
                 <span>Shipping:</span>
@@ -71,13 +77,15 @@ error_log('DEBUG cart/view.php - Cart keys: ' . implode(', ', array_keys($cart))
             </div>
             <div class="summary-row total">
                 <span>Total:</span>
-                <span id="totalPrice">₱ <?php echo formatPrice($cartTotal); ?></span>
+                <span id="stickyTotalPrice">₱ 0.00</span>
             </div>
-            <br>
-            <button type="submit" class="btn" style="width: 100%; text-align: center;" onclick="return validateCheckout()">Proceed to Checkout</button>
-            <a href="/CURATOR/products/list.php" class="btn btn-outline" style="width: 100%; text-align: center; margin-top: 0.5rem;">Continue Shopping</a>
         </div>
-    </form>
+        <div class="summary-actions">
+            <button type="button" class="btn" onclick="proceedToCheckout()" style="flex: 1;">Proceed to Checkout</button>
+            <a href="/CURATOR/products/list.php" class="btn btn-outline" style="flex: 1;">Continue Shopping</a>
+        </div>
+    </div>
+</div>
 <?php endif; ?>
 
 <script>
@@ -95,15 +103,46 @@ function updateCheckboxState() {
     const selectAll = document.getElementById('selectAll');
     const checkedCount = document.querySelectorAll('.item-select:checked').length;
     selectAll.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
+    updateSummary();
 }
 
-function validateCheckout() {
+function updateSummary() {
+    let subtotal = 0;
+    const selectedItems = document.querySelectorAll('.item-select:checked');
+    
+    selectedItems.forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const priceCell = row.cells[3].textContent;
+        const price = parseFloat(priceCell.replace('₱ ', '').replace(/,/g, ''));
+        const quantityInput = row.cells[4].querySelector('input[type="number"]');
+        const quantity = parseInt(quantityInput.value);
+        
+        subtotal += price * quantity;
+    });
+    
+    // Update sticky bar
+    const subtotalFormatted = subtotal.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('stickySubtotalPrice').textContent = '₱ ' + subtotalFormatted;
+    document.getElementById('stickyTotalPrice').textContent = '₱ ' + subtotalFormatted;
+}
+
+function proceedToCheckout() {
     const selectedItems = document.querySelectorAll('.item-select:checked');
     if (selectedItems.length === 0) {
-        alert('Please select at least one item to checkout');
+        showConfirmModal(
+            'No Items Selected',
+            'Please select at least one item to proceed to checkout.',
+            'OK',
+            function() {
+                // Close modal
+            },
+            'OK'
+        );
         return false;
     }
-    return true;
+    
+    // Submit form
+    document.getElementById('cartForm').submit();
 }
 
 function handleQuantityChange(productId, newQuantity) {
@@ -165,6 +204,11 @@ function removeFromCart(productId) {
             alert('Error removing from cart');
         });
 }
+
+// Initialize summary on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSummary();
+});
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

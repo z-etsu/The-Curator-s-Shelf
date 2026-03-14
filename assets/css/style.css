@@ -483,6 +483,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top;
 }
 
 .product-info {
@@ -573,12 +574,80 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
-.product-detail-image img {
+.image-carousel {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.carousel-image-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--placeholder-bg);
+}
+
+.carousel-image-container img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-btn:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.prev-btn {
+    left: 1rem;
+}
+
+.next-btn {
+    right: 1rem;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.indicator.active {
+    background-color: rgba(255, 255, 255, 1);
 }
 
 .product-detail-info h2 {
@@ -669,6 +738,10 @@ body {
 }
 
 /* Cart Page */
+#cartForm {
+    padding-bottom: 150px;
+}
+
 .cart-table {
     width: 100%;
     border-collapse: collapse;
@@ -777,6 +850,89 @@ body {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 2px solid var(--border-color);
+}
+
+/* Sticky Bottom Cart Summary Bar */
+.sticky-cart-summary {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 2px solid var(--border-color);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 1.5rem 2rem;
+}
+
+.summary-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: center;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.summary-stats .summary-row {
+    border: none;
+    padding: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.summary-stats .summary-row span:first-child {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.summary-stats .summary-row.total {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.summary-stats .summary-row.total span:last-child {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.summary-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.summary-actions .btn {
+    padding: 0.75rem 1.5rem;
+    white-space: nowrap;
+}
+
+/* Add padding to main content when sticky bar is present */
+
+@media (max-width: 768px) {
+    .summary-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .summary-actions {
+        flex-direction: column;
+    }
+    
+    .sticky-cart-summary {
+        padding: 1rem;
+    }
 }
 
 .empty-cart {

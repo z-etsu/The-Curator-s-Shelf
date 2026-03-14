@@ -25,7 +25,30 @@ $stockText = $product['stock'] > 0 ? $product['stock'] . ' in stock' : 'Out of s
 
 <div class="product-detail">
     <div class="product-detail-image">
-        <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+        <div class="image-carousel">
+            <button class="carousel-btn prev-btn" onclick="previousImage()" <?php echo !$product['image_url_2'] ? 'style="display: none;"' : ''; ?>>❮</button>
+            
+            <div class="carousel-image-container">
+                <img id="mainImage" src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+            </div>
+            
+            <button class="carousel-btn next-btn" onclick="nextImage()" <?php echo !$product['image_url_2'] ? 'style="display: none;"' : ''; ?>>❯</button>
+            
+            <?php if ($product['image_url_2']): ?>
+                <div class="carousel-indicators">
+                    <span class="indicator active" onclick="showImage(0)"></span>
+                    <span class="indicator" onclick="showImage(1)"></span>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Hidden images for carousel -->
+        <div style="display: none;">
+            <img id="image0" src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+            <?php if ($product['image_url_2']): ?>
+                <img id="image1" src="<?php echo htmlspecialchars($product['image_url_2']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?> - View 2">
+            <?php endif; ?>
+        </div>
     </div>
     
     <div class="product-detail-info">
@@ -83,6 +106,41 @@ $stockText = $product['stock'] > 0 ? $product['stock'] . ' in stock' : 'Out of s
 </div>
 
 <script>
+let currentImageIndex = 0;
+const totalImages = <?php echo $product['image_url_2'] ? '2' : '1'; ?>;
+
+function nextImage() {
+    if (totalImages > 1) {
+        currentImageIndex = (currentImageIndex + 1) % totalImages;
+        updateCarousel();
+    }
+}
+
+function previousImage() {
+    if (totalImages > 1) {
+        currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
+        updateCarousel();
+    }
+}
+
+function showImage(index) {
+    if (index >= 0 && index < totalImages) {
+        currentImageIndex = index;
+        updateCarousel();
+    }
+}
+
+function updateCarousel() {
+    const mainImage = document.getElementById('mainImage');
+    mainImage.src = document.getElementById('image' + currentImageIndex).src;
+    
+    // Update indicators
+    const indicators = document.querySelectorAll('.indicator');
+    indicators.forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === currentImageIndex);
+    });
+}
+
 function handleAddToCart(event, productId) {
     event.preventDefault();
     const quantity = document.getElementById('quantity').value;
