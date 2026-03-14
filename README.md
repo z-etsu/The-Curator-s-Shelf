@@ -32,84 +32,78 @@ The database will now be set up with all tables and sample products!
 
 ```
 CURATOR/
-├── index.php                    (Homepage)
+├── index.php                    (Homepage with hero section)
 ├── config/
-│   └── database.php            (DB connection)
+│   └── database.php            (Database connection configuration)
 ├── includes/
-│   ├── header.php              (Navigation)
-│   ├── footer.php              (Footer)
-│   └── functions.php           (Helper functions)
+│   ├── header.php              (Navigation and user menu)
+│   ├── footer.php              (Page footer)
+│   └── functions.php           (Helper and database functions)
 ├── products/
-│   ├── list.php                (All products page)
-│   └── detail.php              (Single product page)
+│   ├── list.php                (Browse all products)
+│   └── detail.php              (Product detail page with image carousel)
 ├── cart/
-│   ├── view.php                (Cart display)
+│   ├── view.php                (Shopping cart management)
 │   ├── add.php                 (Add to cart - AJAX)
 │   ├── remove.php              (Remove from cart - AJAX)
 │   ├── update.php              (Update quantity - AJAX)
 │   └── get-count.php           (Get cart count - AJAX)
 ├── checkout/
-│   └── index.php               (Checkout & order confirmation)
+│   └── index.php               (Checkout and order confirmation)
+├── orders/
+│   └── index.php               (Order history and order details)
 ├── auth/
 │   ├── login.php               (Login page)
-│   ├── register.php            (Signup page)
-│   └── logout.php              (Logout handler)
+│   ├── register.php            (Create account)
+│   ├── logout.php              (Logout handler)
+│   └── settings.php            (Account settings)
 ├── assets/
 │   ├── css/
-│   │   └── style.css           (All styling)
+│   │   └── style.css           (Responsive styling)
+│   ├── images/                 (Product images)
 │   └── js/
-│       └── main.js             (Cart functionality, AJAX)
+│       └── main.js             (Cart and modal interactions)
 ├── sql/
-│   └── schema.sql              (Database schema + sample data)
-└── README.md                   (This file)
+│   ├── schema.sql              (Database schema and initial data)
+│   └── update_product_images.sql (Product image migration)
+├── PRODUCTS_REFERENCE.txt       (Product list reference)
+└── README.md                    (This file)
 ```
 
 ---
 
-## Testing Checklist (Phase 1)
+## Features
 
-- [ ] **Homepage**: Hero section visible, featured products displayed
-- [ ] **Product Listing**: Click "Shop" → see all 10 products
-- [ ] **Product Detail**: Click product → see full details, stock info
-- [ ] **Add to Cart**: Click "Add to Cart" → success message, cart count updates
-- [ ] **Cart Page**: View cart items, update quantities, remove items
-- [ ] **Signup**: Create new account with valid email/password
-- [ ] **Login**: Login with created account, see greeting in header
-- [ ] **Checkout**: Fill shipping form → see order confirmation with Order ID
-- [ ] **Database**: Check `orders` and `order_items` tables in phpmyadmin to verify order was saved
+- **Browse Products**: Explore our collection of 18 action figures with detailed product pages, multiple images, and stock information
+- **User Accounts**: Create an account and log in to save your shopping history and preferences
+- **Shopping Cart**: Add items to your cart, adjust quantities, and manage selections. Your cart persists across sessions
+- **Order Management**: View your complete order history and detailed information about past purchases
+- **Secure Checkout**: Simple checkout process with automatic shipping address entry and order confirmation
+- **Real-time Updates**: Cart totals update instantly as you select items
 
 ---
 
-## Sample Accounts for Testing
+## Getting Started as a Customer
 
-Once the database is imported, you can immediately start by:
-1. Creating a new account (click "Sign Up")
-2. Or implementing admin accounts in Phase 2
-
----
-
-## Database Details
-
-### Tables Created:
-- **users** — Stores customer/admin accounts
-- **products** — 10 sample Spider-Man action figures
-- **cart_items** — Session-based cart (currently stored in PHP session)
-- **orders** — Completed orders
-- **order_items** — Items in each order
-
-### Sample Data:
-- 10 Spider-Man Mafex Edition figures (various prices and stock levels)
-- All ready to browse, add to cart, and checkout
+1. **Create an Account** or use the signup feature
+2. **Browse Products** using the "Shop" menu to see all available action figures
+3. **View Details** by clicking on any product to see images, description, and pricing
+4. **Build Your Order** by adding items to your cart
+5. **Check Out** when ready, and receive an order confirmation with your order number
+6. **Track Orders** by visiting "My Orders" in your profile menu
 
 ---
 
-## Phase 2 (Next Steps)
+## Database Overview
 
-After Day 3 delivery, we'll add:
-- Product search/filter
-- Admin panel for managing products
-- Admin login with separate dashboard
-- Persistent shopping cart (save to database instead of session)
+The application uses a MySQL database with the following structure:
+
+- **users** — Customer account information
+- **products** — 18 action figure catalogs with pricing and descriptions
+- **cart_items** — Persistent shopping cart data
+- **orders** — Customer order records
+- **order_items** — Individual items within each order
+- **categories** — Product categorization
 
 ---
 
