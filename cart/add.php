@@ -15,6 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => false, 'message' => 'Invalid product or quantity']);
         exit();
     }
+    
+    // Check if user is logged in
+    if (!isLoggedIn()) {
+        echo json_encode(['success' => false, 'message' => 'Please log in to add items to cart']);
+        exit();
+    }
 
     // Check if product exists and has stock
     $stmt = $pdo->prepare('SELECT id, name, price, stock, image_url FROM products WHERE id = ?');
@@ -26,23 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Add to session cart
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    if (isset($_SESSION['cart'][$productId])) {
-        $_SESSION['cart'][$productId]['quantity'] += $quantity;
+    // Add to database cart
+    if (addToCartDatabase($productId, $quantity)) {
+        echo json_encode(['success' => true, 'message' => 'Product added to cart']);
     } else {
-        $_SESSION['cart'][$productId] = [
-            'name' => $product['name'],
-            'price' => $product['price'],
-            'image_url' => $product['image_url'],
-            'quantity' => $quantity
-        ];
+        echo json_encode(['success' => false, 'message' => 'Error adding to cart']);
     }
-
-    echo json_encode(['success' => true, 'message' => 'Product added to cart']);
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid request']);
 }

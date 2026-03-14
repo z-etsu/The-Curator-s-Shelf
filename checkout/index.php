@@ -5,12 +5,12 @@ require_once __DIR__ . '/../config/database.php';
 
 startSession();
 
-$cart = $_SESSION['cart'] ?? [];
+$cart = getCartFromDatabase();
 $cartEmpty = empty($cart);
 
 // If cart is empty, redirect
 if ($cartEmpty) {
-    redirect('/cart/view.php');
+    redirect('/CURATOR/cart/view.php');
 }
 
 // Check if user is logged in, if not redirect to login
@@ -79,10 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 $stmt->execute([$newOrderId, $productId, $item['quantity'], $item['price']]);
             }
 
-            // Remove selected items from session cart
+            // Remove selected items from database cart
             foreach ($selectedItems as $itemId) {
                 $itemId = intval($itemId);
-                unset($_SESSION['cart'][$itemId]);
+                removeFromCartDatabase($itemId);
             }
 
             $orderPlaced = true;

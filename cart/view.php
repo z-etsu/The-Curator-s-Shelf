@@ -4,9 +4,13 @@ require_once __DIR__ . '/../includes/functions.php';
 
 startSession();
 
-$cart = $_SESSION['cart'] ?? [];
+$cart = getCartFromDatabase();
 $cartEmpty = empty($cart);
 $cartTotal = getCartTotal($cart);
+
+// Debug logging
+error_log('DEBUG cart/view.php - Cart state: ' . json_encode($cart));
+error_log('DEBUG cart/view.php - Cart keys: ' . implode(', ', array_keys($cart)));
 ?>
 
 <h2 class="section-title">Shopping Cart</h2>
@@ -23,7 +27,7 @@ $cartTotal = getCartTotal($cart);
             <thead>
                 <tr>
                     <th style="width: 40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
-                    <th style="width: 200px;">Image</th>
+                    <th style="width: 150px;">Image</th>
                     <th>Product</th>
                     <th>Price</th>
                     <th>Quantity</th>
@@ -35,7 +39,7 @@ $cartTotal = getCartTotal($cart);
                     <tr>
                         <td><input type="checkbox" class="item-select" name="selected_items[]" value="<?php echo $productId; ?>" onchange="updateCheckboxState()"></td>
                         <td>
-                            <img src="<?php echo htmlspecialchars($item['image_url']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" style="width: 200px; height: auto; object-fit: cover;">
+                            <img src="<?php echo htmlspecialchars($item['image_url']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" style="width: 150px; height: auto; object-fit: cover;">
                         </td>
                         <td class="cart-item-name"><?php echo htmlspecialchars($item['name']); ?></td>
                         <td>₱ <?php echo formatPrice($item['price']); ?></td>
@@ -103,6 +107,7 @@ function validateCheckout() {
 }
 
 function handleQuantityChange(productId, newQuantity) {
+    console.log('handleQuantityChange - productId:', productId, 'newQuantity:', newQuantity);
     if (newQuantity < 0 || newQuantity === 0) {
         showConfirmModal(
             'Remove Item',
@@ -138,6 +143,7 @@ function handleQuantityChange(productId, newQuantity) {
 }
 
 function removeFromCart(productId) {
+    console.log('removeFromCart called with productId:', productId, 'Type:', typeof productId);
     const formData = new FormData();
     formData.append('product_id', productId);
 
@@ -147,10 +153,11 @@ function removeFromCart(productId) {
     })
         .then(response => response.json())
         .then(data => {
+            console.log('Remove response:', data);
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error removing from cart');
+                alert('Error removing from cart: ' + data.message);
             }
         })
         .catch(error => {
