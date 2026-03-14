@@ -1,0 +1,23 @@
+CURATOR SHELF - PRODUCTS LIST
+Generated: March 14, 2026
+
+ID | Name | Price | Category ID
+=========================================
+1  | Kaguya Shinomiya - Love is War | 4500.00 | 25
+2  | Miyuki Shirogane - Genius Secretary | 4300.00 | 25
+3  | Ai Hayasaka - Maid Angel | 4200.00 | 25
+4  | Chika Fujiwara - Heart Throb Idol | 4000.00 | 25
+5  | Ken Kaneki - One-Eyed Ghoul | 4800.00 | 26
+6  | Touka Kirishima - Ghoul Princess | 4650.00 | 26
+7  | Rize Kamishiro - Binge Eater | 4500.00 | 26
+8  | Eto White - One-Eyed Owl | 4950.00 | 26
+9  | Ichigo Kurosaki - Bleach Soul Society | 4850.00 | 27
+10 | Goku Ultra Instinct - Dragon Ball Super | 4927.00 | 28
+11 | Batman - Dark Knight Trilogy | 5207.00 | 31
+12 | Wonder Woman Classic - DC Comics | 5039.00 | 31
+13 | Naruto Uzumaki - Sage Mode | 4759.00 | 30
+14 | Superman - Justice League | 5319.00 | 31
+15 | The Flash - DC Comics Fastest Man | 4479.00 | 31
+16 | Iron Man Mark 85 - Avengers Endgame | 5599.00 | 32
+17 | Madoka Kaname - Puella Magi | 4199.00 | 29
+18 | Black Panther - Marvel Legends | 5487.00 | 32
