@@ -25,7 +25,7 @@ $currentUser = getCurrentUser();
             </div>
             <nav class="navbar-menu">
                 <a href="/CURATOR/products/list.php" class="nav-link">Shop</a>
-                <a href="#about" class="nav-link">About</a>
+                <a href="/CURATOR/about.php" class="nav-link">About</a>
                 <a href="/CURATOR/cart/view.php" class="nav-link">
                     Cart
                     <span class="cart-count" id="cartCount">0</span>
