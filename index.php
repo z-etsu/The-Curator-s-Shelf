@@ -25,7 +25,7 @@ $recentProducts = $stmt->fetchAll();
 
 <div class="products-grid">
     <?php foreach ($featuredProducts as $product): ?>
-        <div class="product-card">
+        <div class="product-card" data-product-id="<?php echo $product['id']; ?>" data-full-description="<?php echo htmlspecialchars($product['description']); ?>" data-stock="<?php echo $product['stock']; ?>" data-series="<?php echo htmlspecialchars($product['series']); ?>">
             <div class="product-image">
                 <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
             </div>
@@ -52,7 +52,7 @@ $recentProducts = $stmt->fetchAll();
 
 <div class="products-grid recent-arrivals">
     <?php foreach ($recentProducts as $product): ?>
-        <div class="product-card">
+        <div class="product-card" data-product-id="<?php echo $product['id']; ?>" data-full-description="<?php echo htmlspecialchars($product['description']); ?>" data-stock="<?php echo $product['stock']; ?>" data-series="<?php echo htmlspecialchars($product['series']); ?>">
             <div class="product-image">
                 <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
             </div>

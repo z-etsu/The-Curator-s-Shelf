@@ -5,14 +5,6 @@ require_once __DIR__ . '/../config/database.php';
 
 startSession();
 
-$cart = getCartFromDatabase();
-$cartEmpty = empty($cart);
-
-// If cart is empty, redirect
-if ($cartEmpty) {
-    redirect('/CURATOR/cart/view.php');
-}
-
 // Check if user is logged in, if not redirect to login
 if (!isLoggedIn()) {
     redirect('/auth/login.php?redirect=/checkout/index.php');
@@ -23,18 +15,51 @@ $errors = [];
 $orderPlaced = false;
 $orderId = null;
 
-// Get selected items from POST
-$selectedItems = $_POST['selected_items'] ?? [];
-if (empty($selectedItems)) {
-    redirect('/CURATOR/cart/view.php');
-}
-
-// Filter cart to only include selected items
+// Check for direct buy (Buy Now button) - product_id and quantity in URL
+$directProductId = isset($_GET['product_id']) ? intval($_GET['product_id']) : 0;
+$directQuantity = isset($_GET['quantity']) ? intval($_GET['quantity']) : 1;
 $selectedCart = [];
-foreach ($selectedItems as $itemId) {
-    $itemId = intval($itemId);
-    if (isset($cart[$itemId])) {
-        $selectedCart[$itemId] = $cart[$itemId];
+
+if ($directProductId > 0) {
+    // Direct buy mode - fetch product details
+    $stmt = $pdo->prepare('SELECT id, name, price FROM products WHERE id = ?');
+    $stmt->execute([$directProductId]);
+    $product = $stmt->fetch();
+    
+    if ($product && $directQuantity >= 1) {
+        $selectedCart[$directProductId] = [
+            'name' => $product['name'],
+            'price' => $product['price'],
+            'quantity' => $directQuantity,
+            'image_url' => '' // Not needed for checkout
+        ];
+        $selectedItems = [$directProductId];
+    } else {
+        redirect('/CURATOR/products/list.php');
+    }
+} else {
+    // Regular checkout from cart
+    $cart = getCartFromDatabase();
+    $cartEmpty = empty($cart);
+    
+    // If cart is empty, redirect
+    if ($cartEmpty) {
+        redirect('/CURATOR/cart/view.php');
+    }
+    
+    // Get selected items from POST
+    $selectedItems = $_POST['selected_items'] ?? [];
+    
+    if (empty($selectedItems)) {
+        redirect('/CURATOR/cart/view.php');
+    }
+    
+    // Filter cart to only include selected items
+    foreach ($selectedItems as $itemId) {
+        $itemId = intval($itemId);
+        if (isset($cart[$itemId])) {
+            $selectedCart[$itemId] = $cart[$itemId];
+        }
     }
 }
 

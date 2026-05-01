@@ -37,13 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Last name must contain only letters, spaces, hyphens, and apostrophes';
     }
     if (empty($email) || !validateEmail($email)) {
-        $errors[] = 'Valid email is required';
+        $errors[] = 'Valid email is required (allowed domains: gmail, yahoo, outlook, hotmail, aol, icloud, and others)';
     }
     if (empty($password)) {
         $errors[] = 'Password is required';
     }
     if (!validatePassword($password)) {
-        $errors[] = 'Password must be at least 6 characters';
+        $errors[] = 'Password must be at least 15 characters';
     }
     if ($password !== $confirmPassword) {
         $errors[] = 'Passwords do not match';

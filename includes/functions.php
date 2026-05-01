@@ -42,12 +42,43 @@ function verifyPassword($password, $hash) {
 
 // Form validation
 function validateEmail($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    
+    // Whitelist of allowed email domains
+    $allowedDomains = [
+        'gmail.com',
+        'yahoo.com',
+        'outlook.com',
+        'hotmail.com',
+        'aol.com',
+        'icloud.com',
+        'mail.com',
+        'protonmail.com',
+        'tutanota.com',
+        'yandex.com',
+        'fastmail.com',
+        'gmx.com',
+        'zoho.com',
+        'mailinator.com',
+        'temp-mail.org',
+        'guerrillamail.com'
+    ];
+    
+    // Extract domain from email
+    $emailParts = explode('@', $email);
+    if (count($emailParts) !== 2) {
+        return false;
+    }
+    
+    $domain = strtolower($emailParts[1]);
+    return in_array($domain, $allowedDomains);
 }
 
 function validatePassword($password) {
-    // Min 6 characters
-    return strlen($password) >= 6;
+    // Min 15 characters
+    return strlen($password) >= 15;
 }
 
 // Cart helpers
