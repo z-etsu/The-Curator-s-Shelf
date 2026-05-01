@@ -16,7 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_order_status']
     
     $validStatuses = ['pending', 'to_ship', 'to_receive', 'delivered', 'cancelled'];
     
-    if (in_array($newStatus, $validStatuses)) {
+    // Check if order is already cancelled
+    $stmt = $pdo->prepare('SELECT status FROM orders WHERE id = ?');
+    $stmt->execute([$orderId]);
+    $order = $stmt->fetch();
+    
+    if ($order && $order['status'] === 'cancelled') {
+        $errorMessage = 'Cancelled orders cannot be modified.';
+    } elseif (in_array($newStatus, $validStatuses)) {
         try {
             $stmt = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ?');
             $stmt->execute([$newStatus, $orderId]);
@@ -104,32 +111,19 @@ if (isset($_GET['error'])) {
         }
 
         .container {
-            max-width: 1440px;
+            display: none;
+        }
             margin: 0 auto;
             padding: 3rem 2rem;
             min-height: calc(100vh - 200px);
         }
 
         .tabs {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            border-bottom: 1px solid var(--border-color);
-            overflow-x: auto;
+            display: none;
         }
 
         .tab {
-            padding: 1rem 0;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-light);
-            position: relative;
-            transition: color 0.3s ease;
-            font-family: 'Inter', sans-serif;
-            white-space: nowrap;
+            display: none;
         }
 
         .tab:hover {
@@ -137,18 +131,7 @@ if (isset($_GET['error'])) {
         }
 
         .tab.active {
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--primary-color);
+            display: none;
         }
 
         .tab-content {
@@ -159,7 +142,57 @@ if (isset($_GET['error'])) {
             display: block;
         }
 
-        .alert {
+        /* Admin Sidebar Navigation */
+        .admin-wrapper {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .admin-sidebar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            display: block;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background: none;
+            border: none;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--bg-light);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--bg-light);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .admin-main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .admin-main-content .alert {
             padding: 1rem;
             border-radius: 0;
             margin-bottom: 1.5rem;
@@ -274,6 +307,18 @@ if (isset($_GET['error'])) {
         .btn-delete:hover {
             background-color: #c82333;
             transform: translateY(-2px);
+        }
+
+        .btn-disabled {
+            display: inline-block;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            border-radius: 0;
+            cursor: not-allowed;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            background-color: #e0e0e0;
+            color: #999999;
         }
 
         .status-select {
@@ -506,18 +551,23 @@ if (isset($_GET['error'])) {
         </div>
     </header>
 
-    <div class="container">
+    <div class="admin-wrapper">
+        <aside class="admin-sidebar">
+            <button class="sidebar-item active" onclick="switchTab('orders', event)" data-tab="orders">
+                📋 Orders
+            </button>
+            <button class="sidebar-item" onclick="switchTab('products', event)" data-tab="products">
+                📦 Products
+            </button>
+        </aside>
+
+        <div class="admin-main-content">
         <?php if ($successMessage): ?>
             <div class="alert alert-success"><?php echo $successMessage; ?></div>
         <?php endif; ?>
         <?php if ($errorMessage): ?>
             <div class="alert alert-error"><?php echo $errorMessage; ?></div>
         <?php endif; ?>
-
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('orders')">Orders</button>
-            <button class="tab" onclick="switchTab('products')">Products</button>
-        </div>
 
         <!-- Orders Tab -->
         <div id="orders" class="tab-content active">
@@ -569,7 +619,11 @@ if (isset($_GET['error'])) {
                             </td>
                             <td><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
                             <td>
-                                <button class="btn-sm btn-edit" onclick="openOrderModal(<?php echo $order['id']; ?>, '<?php echo $order['status']; ?>')">Update</button>
+                                <?php if ($order['status'] === 'cancelled'): ?>
+                                    <span class="btn-disabled">Locked</span>
+                                <?php else: ?>
+                                    <button class="btn-sm btn-edit" onclick="openOrderModal(<?php echo $order['id']; ?>, '<?php echo $order['status']; ?>')">Update</button>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -715,20 +769,25 @@ if (isset($_GET['error'])) {
                 <button type="submit" class="btn-submit">Update Stock</button>
             </form>
         </div>
+        </div>
     </div>
 
     <script>
-        function switchTab(tabName) {
-            // Hide all tab contents
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => content.classList.remove('active'));
-
-            // Remove active class from all tabs
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-
+        function switchTab(tabName, event) {
+            if (event) {
+                event.preventDefault();
+            }
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
             // Show selected tab
             document.getElementById(tabName).classList.add('active');
+            
+            // Update sidebar items
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
             event.target.classList.add('active');
         }
 
@@ -741,6 +800,21 @@ if (isset($_GET['error'])) {
         function closeOrderModal() {
             document.getElementById('orderModal').classList.remove('active');
         }
+
+        // Handle form submission with confirmation for cancelled status
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderForm = document.querySelector('#orderModal form');
+            if (orderForm) {
+                orderForm.addEventListener('submit', function(e) {
+                    const status = document.getElementById('orderStatus').value;
+                    if (status === 'cancelled') {
+                        if (!confirm('Are you sure you want to cancel this order? This action cannot be undone and the order status will be locked permanently.')) {
+                            e.preventDefault();
+                        }
+                    }
+                });
+            }
+        });
 
         function openProductModal(productId = 0) {
             const modal = document.getElementById('productModal');

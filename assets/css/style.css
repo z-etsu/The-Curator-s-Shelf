@@ -1654,6 +1654,40 @@ body {
     margin-bottom: 2rem;
 }
 
+/* Orders Filter Tabs */
+.orders-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.status-tab {
+    padding: 0.75rem 1.5rem;
+    background-color: white;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.status-tab:hover {
+    background-color: var(--bg-light);
+    border-color: var(--primary-color);
+}
+
+.status-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
 .orders-list {
     display: grid;
     gap: 1.5rem;
@@ -1987,7 +2021,61 @@ body {
     background-color: #28a745;
 }
 
-/* Status badges for tracking states */
+.cancel-order-section {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 1.5rem;
+    border-radius: 0;
+    margin: 2rem 0;
+}
+
+.cancel-notice {
+    color: #856404;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 0;
+    box-shadow: var(--shadow-hover);
+    max-width: 500px;
+    width: 90%;
+}
+
+.modal-content {
+    text-align: center;
+}
+
+.modal-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.modal-content p {
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.modal-content .btn {
+    margin: 0 0.5rem;
+}
 .status-to_ship {
     background-color: #d1ecf1;
     color: #0c5460;

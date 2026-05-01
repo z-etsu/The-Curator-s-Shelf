@@ -13,9 +13,39 @@ if (!isLoggedIn()) {
 $user = getCurrentUser();
 $userId = $_SESSION['user_id'];
 
-// Get all orders for the user
-$stmt = $pdo->prepare('SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC');
-$stmt->execute([$userId]);
+// Handle order cancellation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
+    $orderToCancel = intval($_POST['order_id']);
+    
+    // Verify order belongs to user and is pending
+    $stmt = $pdo->prepare('SELECT status FROM orders WHERE id = ? AND user_id = ?');
+    $stmt->execute([$orderToCancel, $userId]);
+    $orderStatus = $stmt->fetch();
+    
+    if ($orderStatus && $orderStatus['status'] === 'pending') {
+        try {
+            $stmt = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ? AND user_id = ?');
+            $stmt->execute(['cancelled', $orderToCancel, $userId]);
+            $viewOrderId = null; // Reset view to show list
+            $cancelSuccess = true;
+        } catch (PDOException $e) {
+            $cancelError = true;
+        }
+    }
+}
+
+// Get selected status filter
+$selectedStatus = isset($_GET['status']) ? $_GET['status'] : null;
+$validStatuses = ['pending', 'to_ship', 'to_receive', 'delivered', 'cancelled'];
+
+// Get all orders for the user, optionally filtered by status
+if ($selectedStatus && in_array($selectedStatus, $validStatuses)) {
+    $stmt = $pdo->prepare('SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? AND status = ? ORDER BY created_at DESC');
+    $stmt->execute([$userId, $selectedStatus]);
+} else {
+    $stmt = $pdo->prepare('SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC');
+    $stmt->execute([$userId]);
+}
 $orders = $stmt->fetchAll();
 
 // Get order details when viewing a specific order
@@ -44,6 +74,28 @@ if ($viewOrderId) {
 <h2 class="section-title">My Orders</h2>
 
 <?php if (!$viewOrderId): ?>
+    <!-- Status Filter Tabs -->
+    <div class="orders-filters">
+        <a href="/CURATOR/orders/index.php" class="status-tab <?php echo $selectedStatus === null ? 'active' : ''; ?>">
+            All Orders
+        </a>
+        <a href="?status=pending" class="status-tab <?php echo $selectedStatus === 'pending' ? 'active' : ''; ?>">
+            Pending
+        </a>
+        <a href="?status=to_ship" class="status-tab <?php echo $selectedStatus === 'to_ship' ? 'active' : ''; ?>">
+            To Ship
+        </a>
+        <a href="?status=to_receive" class="status-tab <?php echo $selectedStatus === 'to_receive' ? 'active' : ''; ?>">
+            To Receive
+        </a>
+        <a href="?status=delivered" class="status-tab <?php echo $selectedStatus === 'delivered' ? 'active' : ''; ?>">
+            Delivered
+        </a>
+        <a href="?status=cancelled" class="status-tab <?php echo $selectedStatus === 'cancelled' ? 'active' : ''; ?>">
+            Cancelled
+        </a>
+    </div>
+
     <!-- Orders List View -->
     <?php if (empty($orders)): ?>
         <div class="empty-orders">
@@ -137,6 +189,36 @@ if ($viewOrderId) {
                         </div>
                     </div>
                 </div>
+
+                <?php if ($orderDetails['status'] === 'pending'): ?>
+                    <div class="cancel-order-section">
+                        <p class="cancel-notice">This order is still pending and can be cancelled.</p>
+                        <button class="btn btn-danger" onclick="confirmCancelOrder(<?php echo $orderDetails['id']; ?>)">Cancel Order</button>
+                    </div>
+                    
+                    <div id="cancelModal" class="modal-overlay" style="display: none;">
+                        <div class="modal">
+                            <div class="modal-content">
+                                <h3>Cancel Order?</h3>
+                                <p>Are you sure you want to cancel this order? This action cannot be undone.</p>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="order_id" value="<?php echo $orderDetails['id']; ?>">
+                                    <button type="submit" name="cancel_order" class="btn btn-danger">Yes, Cancel Order</button>
+                                    <button type="button" class="btn" onclick="closeCancelModal()">No, Keep Order</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        function confirmCancelOrder(orderId) {
+                            document.getElementById('cancelModal').style.display = 'flex';
+                        }
+                        function closeCancelModal() {
+                            document.getElementById('cancelModal').style.display = 'none';
+                        }
+                    </script>
+                <?php endif; ?>
 
                 <div class="order-items">
                     <h4>Items Ordered</h4>
