@@ -128,5 +128,3 @@ The application uses a MySQL database with the following structure:
 - Make sure `assets/js/main.js` is loading
 
 ---
-
-
