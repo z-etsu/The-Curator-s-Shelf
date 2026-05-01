@@ -88,8 +88,33 @@ if ($viewOrderId) {
                 <div class="order-details-header">
                     <h3>Order #<?php echo str_pad($orderDetails['id'], 8, '0', STR_PAD_LEFT); ?></h3>
                     <span class="status-badge status-<?php echo strtolower($orderDetails['status']); ?>">
-                        <?php echo ucfirst($orderDetails['status']); ?>
+                        <?php echo ucfirst(str_replace('_', ' ', $orderDetails['status'])); ?>
                     </span>
+                </div>
+
+                <!-- Order Tracking Timeline -->
+                <div class="order-tracking">
+                    <div class="tracking-timeline">
+                        <div class="tracking-step <?php echo in_array($orderDetails['status'], ['pending', 'to_ship', 'to_receive', 'delivered']) ? 'completed' : ''; ?>">
+                            <div class="step-circle"></div>
+                            <div class="step-label">Pending</div>
+                        </div>
+                        <div class="tracking-line <?php echo in_array($orderDetails['status'], ['to_ship', 'to_receive', 'delivered']) ? 'completed' : ''; ?>"></div>
+                        <div class="tracking-step <?php echo in_array($orderDetails['status'], ['to_ship', 'to_receive', 'delivered']) ? 'completed' : ''; ?>">
+                            <div class="step-circle"></div>
+                            <div class="step-label">To Ship</div>
+                        </div>
+                        <div class="tracking-line <?php echo in_array($orderDetails['status'], ['to_receive', 'delivered']) ? 'completed' : ''; ?>"></div>
+                        <div class="tracking-step <?php echo in_array($orderDetails['status'], ['to_receive', 'delivered']) ? 'completed' : ''; ?>">
+                            <div class="step-circle"></div>
+                            <div class="step-label">To Receive</div>
+                        </div>
+                        <div class="tracking-line <?php echo $orderDetails['status'] === 'delivered' ? 'completed' : ''; ?>"></div>
+                        <div class="tracking-step <?php echo $orderDetails['status'] === 'delivered' ? 'completed' : ''; ?>">
+                            <div class="step-circle"></div>
+                            <div class="step-label">Delivered</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="order-details-info">

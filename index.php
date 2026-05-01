@@ -78,22 +78,28 @@ $recentProducts = $stmt->fetchAll();
 <h3 class="section-title">Browse by Categories</h3>
 
 <div class="categories-carousel">
-    <div class="carousel-item" style="background-color: var(--placeholder-bg);">
+    <div class="carousel-item" style="background-image: url('/CURATOR/assets/images/goku1.png');">
+        <div class="carousel-overlay"></div>
         <div class="carousel-text">Anime Figures</div>
     </div>
-    <div class="carousel-item" style="background-color: var(--placeholder-bg);">
+    <div class="carousel-item" style="background-image: url('/CURATOR/assets/images/ironman1.jpg');">
+        <div class="carousel-overlay"></div>
         <div class="carousel-text">Marvel Figures</div>
     </div>
-    <div class="carousel-item" style="background-color: var(--placeholder-bg);">
+    <div class="carousel-item" style="background-image: url('/CURATOR/assets/images/batman1.png');">
+        <div class="carousel-overlay"></div>
         <div class="carousel-text">DC Figures</div>
     </div>
-    <div class="carousel-item" style="background-color: var(--placeholder-bg);">
+    <div class="carousel-item" style="background-image: url('/CURATOR/assets/images/flash1.jpg');">
+        <div class="carousel-overlay"></div>
         <div class="carousel-text">Video Game Characters</div>
     </div>
-    <div class="carousel-item" style="background-color: var(--placeholder-bg);">
+    <div class="carousel-item" style="background-image: url('/CURATOR/assets/images/superman1.jpg');">
+        <div class="carousel-overlay"></div>
         <div class="carousel-text">Movie Characters</div>
     </div>
-    <div class="carousel-item" style="background-color: var(--placeholder-bg);">
+    <div class="carousel-item" style="background-image: url('/CURATOR/assets/images/naruto1.png');">
+        <div class="carousel-overlay"></div>
         <div class="carousel-text">TV Series Figures</div>
     </div>
 </div>
@@ -101,22 +107,30 @@ $recentProducts = $stmt->fetchAll();
 <!-- Trust Badges Section -->
 <div class="trust-badges">
     <div class="badge">
-        <div class="badge-icon"></div>
+        <div class="badge-icon">
+            <img src="/CURATOR/assets/images/order.png" alt="Authentic Products">
+        </div>
         <h4>Authentic Products</h4>
         <p>Verified genuine collectibles</p>
     </div>
     <div class="badge">
-        <div class="badge-icon"></div>
+        <div class="badge-icon">
+            <img src="/CURATOR/assets/images/fast-shipping-icon.png" alt="Fast Shipping">
+        </div>
         <h4>Fast Shipping</h4>
         <p>Quick and secure delivery</p>
     </div>
     <div class="badge">
-        <div class="badge-icon"></div>
+        <div class="badge-icon">
+            <img src="/CURATOR/assets/images/secure-checkout-icon.png" alt="Secure Checkout">
+        </div>
         <h4>Secure Checkout</h4>
         <p>Safe payment methods</p>
     </div>
     <div class="badge">
-        <div class="badge-icon"></div>
+        <div class="badge-icon">
+            <img src="/CURATOR/assets/images/quality-icon.png" alt="Quality Guaranteed">
+        </div>
         <h4>Quality Guaranteed</h4>
         <p>Premium condition items</p>
     </div>

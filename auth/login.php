@@ -93,6 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="auth-link">
         Don't have an account? <a href="register.php">Sign up here</a>
+        <br><br>
+        <a href="/CURATOR/admin/login.php" style="color: #666; font-size: 0.9rem;">Admin Login</a>
     </div>
 </div>
 

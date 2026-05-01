@@ -76,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $city = sanitize($_POST['city'] ?? '');
     $state = sanitize($_POST['state'] ?? '');
     $zipCode = sanitize($_POST['zip_code'] ?? '');
-    $country = sanitize($_POST['country'] ?? '');
 
     // Validate required fields
     if (empty($firstName)) $errors[] = 'First name is required';
@@ -86,32 +85,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     if (empty($address)) $errors[] = 'Address is required';
     if (empty($city)) $errors[] = 'City is required';
     if (empty($zipCode)) $errors[] = 'ZIP code is required';
+    
+    // Validate phone number - numbers only
+    if (!empty($phone) && !preg_match('/^[0-9\-\+\s()]*$/', $phone)) {
+        $errors[] = 'Phone number can only contain numbers, spaces, and dashes';
+    }
+    
+    // Validate zip code - numbers only
+    if (!empty($zipCode) && !preg_match('/^[0-9\-\s]*$/', $zipCode)) {
+        $errors[] = 'ZIP code can only contain numbers, spaces, and dashes';
+    }
 
     // Process order if no errors
     if (empty($errors)) {
         try {
-            // Build shipping address string
-            $shippingAddress = "$firstName $lastName\n$address\n$city, $state $zipCode\n$country\nPhone: $phone\nEmail: $email";
-
-            // Create order
-            $stmt = $pdo->prepare('INSERT INTO orders (user_id, total_amount, status, shipping_address) VALUES (?, ?, ?, ?)');
-            $stmt->execute([$user['id'], $cartTotal, 'completed', $shippingAddress]);
-            $newOrderId = $pdo->lastInsertId();
-
-            // Add order items from selected cart only
+            // Check stock availability for all items before creating order
             foreach ($selectedCart as $productId => $item) {
-                $stmt = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)');
-                $stmt->execute([$newOrderId, $productId, $item['quantity'], $item['price']]);
+                $stmt = $pdo->prepare('SELECT stock FROM products WHERE id = ?');
+                $stmt->execute([$productId]);
+                $product = $stmt->fetch();
+                
+                if (!$product || $product['stock'] < $item['quantity']) {
+                    $errors[] = 'Insufficient stock for one or more items. Please review your cart.';
+                    break;
+                }
             }
 
-            // Remove selected items from database cart
-            foreach ($selectedItems as $itemId) {
-                $itemId = intval($itemId);
-                removeFromCartDatabase($itemId);
-            }
+            // Only create order if stock check passed
+            if (empty($errors)) {
+                // Build shipping address string
+                $shippingAddress = "$firstName $lastName\n$address\n$city, $state $zipCode\nPhone: $phone\nEmail: $email";
 
-            $orderPlaced = true;
-            $orderId = $newOrderId;
+                // Create order
+                $stmt = $pdo->prepare('INSERT INTO orders (user_id, total_amount, status, shipping_address) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$user['id'], $cartTotal, 'pending', $shippingAddress]);
+                $newOrderId = $pdo->lastInsertId();
+
+                // Add order items from selected cart only and update stock
+                foreach ($selectedCart as $productId => $item) {
+                    $stmt = $pdo->prepare('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)');
+                    $stmt->execute([$newOrderId, $productId, $item['quantity'], $item['price']]);
+                    
+                    // Update product stock - decrease by quantity purchased
+                    $stmt = $pdo->prepare('UPDATE products SET stock = stock - ? WHERE id = ?');
+                    $stmt->execute([$item['quantity'], $productId]);
+                }
+
+                // Remove selected items from database cart
+                foreach ($selectedItems as $itemId) {
+                    $itemId = intval($itemId);
+                    removeFromCartDatabase($itemId);
+                }
+
+                $orderPlaced = true;
+                $orderId = $newOrderId;
+            }
             
         } catch (PDOException $e) {
             $errors[] = 'Failed to place order. Please try again.';
@@ -149,7 +177,8 @@ if ($orderPlaced): ?>
 
         <p style="color: #666; margin-bottom: 2rem;">A confirmation email has been sent to your email address. You can track your order status anytime.</p>
         
-        <a href="/CURATOR/index.php" class="btn">Back to Home</a>
+        <a href="/CURATOR/checkout/receipt.php?order_id=<?php echo $orderId; ?>" class="btn" target="_blank">Download Receipt (PDF)</a>
+        <a href="/CURATOR/orders/index.php?order_id=<?php echo $orderId; ?>" class="btn btn-outline" style="margin-left: 1rem;">View Order</a>
         <a href="/CURATOR/products/list.php" class="btn btn-outline" style="margin-left: 1rem;">Continue Shopping</a>
     </div>
 
@@ -192,7 +221,7 @@ if ($orderPlaced): ?>
 
             <div class="form-group">
                 <label for="phone">Phone Number *</label>
-                <input type="tel" id="phone" name="phone" required>
+                <input type="text" id="phone" name="phone" pattern="[0-9\-\+\s()]*" inputmode="numeric" placeholder="e.g., +63-9XX-XXX-XXXX" required>
             </div>
 
             <div class="form-group">
@@ -211,15 +240,9 @@ if ($orderPlaced): ?>
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="zip_code">ZIP Code *</label>
-                    <input type="text" id="zip_code" name="zip_code" required>
-                </div>
-                <div class="form-group">
-                    <label for="country">Country *</label>
-                    <input type="text" id="country" name="country" value="Philippines" required>
-                </div>
+            <div class="form-group">
+                <label for="zip_code">ZIP Code *</label>
+                <input type="text" id="zip_code" name="zip_code" pattern="[0-9\-\s]*" inputmode="numeric" placeholder="e.g., 1234" required>
             </div>
 
             <button type="submit" name="place_order" class="btn" style="width: 100%; margin-top: 2rem;">Complete Order</button>
@@ -251,5 +274,17 @@ if ($orderPlaced): ?>
     </div>
 
 <?php endif; ?>
+
+<script>
+    // Validate phone number input - only allow numbers, spaces, dashes, parentheses, and plus sign
+    document.getElementById('phone')?.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9\-\+\s()]/g, '');
+    });
+
+    // Validate zip code input - only allow numbers, spaces, and dashes
+    document.getElementById('zip_code')?.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9\-\s]/g, '');
+    });
+</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

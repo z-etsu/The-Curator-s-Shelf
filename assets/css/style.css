@@ -317,14 +317,21 @@ body {
 }
 
 .badge-icon {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     margin: 0 auto 1rem;
-    background-color: var(--placeholder-bg);
-    border: 1px solid var(--border-color);
+   
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 15px;
+}
+
+.badge-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 .badge h4 {
@@ -367,6 +374,19 @@ body {
     justify-content: center;
     opacity: 0;
     transition: opacity 0.8s ease-in-out;
+    background-size: cover;
+    background-position: top;
+    background-repeat: no-repeat;
+}
+
+.carousel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
 }
 
 .carousel-item.active {
@@ -377,10 +397,13 @@ body {
     font-size: 2rem;
     font-family: 'Playfair Display', serif;
     font-weight: 400;
-    color: var(--text-dark);
+    color: white;
     text-align: center;
     opacity: 0;
     animation: fadeInText 0.8s ease-in-out 0.4s forwards;
+    z-index: 2;
+    position: relative;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes fadeInText {
@@ -1885,4 +1908,97 @@ body {
     .items-table td {
         padding: 0.75rem;
     }
+
+    .tracking-timeline {
+        flex-wrap: wrap;
+    }
+
+    .tracking-step {
+        flex: 0 0 calc(50% - 10px);
+    }
+
+    .tracking-line {
+        flex: 0 0 calc(50% - 10px);
+        height: 2px !important;
+        margin: 10px 0 !important;
+    }
+}
+
+/* Order Tracking Timeline */
+.order-tracking {
+    margin: 2rem 0;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tracking-timeline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.tracking-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #e0e0e0;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.tracking-step.completed .step-circle {
+    background-color: #28a745;
+    box-shadow: 0 0 0 3px #28a745;
+}
+
+.step-label {
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+}
+
+.tracking-step.completed .step-label {
+    color: #28a745;
+}
+
+.tracking-line {
+    flex: 1;
+    height: 3px;
+    background-color: #e0e0e0;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.tracking-line.completed {
+    background-color: #28a745;
+}
+
+/* Status badges for tracking states */
+.status-to_ship {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-to_receive {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.status-delivered {
+    background-color: #d1e7dd;
+    color: #0a3622;
 }
