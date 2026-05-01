@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS orders (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     total_amount DECIMAL(10, 2) NOT NULL,
-    status ENUM('pending', 'completed', 'shipped', 'cancelled') DEFAULT 'completed',
+    status ENUM('pending', 'to_ship', 'to_receive', 'delivered', 'return_pending', 'return_denied', 'returned', 'cancelled') DEFAULT 'pending',
     shipping_address TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,

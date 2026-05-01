@@ -14,22 +14,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_order_status']
     $orderId = intval($_POST['order_id']);
     $newStatus = $_POST['order_status'];
     
-    $validStatuses = ['pending', 'to_ship', 'to_receive', 'delivered', 'cancelled'];
-    
-    // Check if order is already cancelled
+    // Get current status
     $stmt = $pdo->prepare('SELECT status FROM orders WHERE id = ?');
     $stmt->execute([$orderId]);
     $order = $stmt->fetch();
     
-    if ($order && $order['status'] === 'cancelled') {
-        $errorMessage = 'Cancelled orders cannot be modified.';
-    } elseif (in_array($newStatus, $validStatuses)) {
-        try {
-            $stmt = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ?');
-            $stmt->execute([$newStatus, $orderId]);
-            $successMessage = 'Order status updated successfully!';
-        } catch (PDOException $e) {
-            $errorMessage = 'Failed to update order status.';
+    if (!$order) {
+        $errorMessage = 'Order not found.';
+    } else {
+        $currentStatus = $order['status'];
+        
+        // Define valid status transitions
+        $validTransitions = [
+            'pending' => ['to_ship', 'cancelled'],
+            'to_ship' => ['to_receive'],
+            'to_receive' => ['delivered'],
+            'delivered' => [],
+            'return_pending' => ['returned', 'return_denied'],
+            'return_denied' => [],
+            'returned' => [],
+            'cancelled' => []
+        ];
+        
+        // Check if transition is allowed
+        if (!isset($validTransitions[$currentStatus]) || !in_array($newStatus, $validTransitions[$currentStatus])) {
+            $errorMessage = 'Invalid status transition. Current status: ' . ucfirst(str_replace('_', ' ', $currentStatus));
+        } else {
+            try {
+                $stmt = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ?');
+                $stmt->execute([$newStatus, $orderId]);
+                $successMessage = 'Order status updated to ' . ucfirst(str_replace('_', ' ', $newStatus)) . ' successfully!';
+            } catch (PDOException $e) {
+                $errorMessage = 'Failed to update order status.';
+            }
         }
     }
 }
@@ -268,6 +285,21 @@ if (isset($_GET['error'])) {
         }
 
         .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-returned {
+            background-color: #e2e3e5;
+            color: #41464b;
+        }
+
+        .status-return_pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-return_denied {
             background-color: #f8d7da;
             color: #721c24;
         }
@@ -546,6 +578,7 @@ if (isset($_GET['error'])) {
         <h1>CURATOR Admin Dashboard</h1>
         <div class="header-actions">
             <span style="margin-right: 20px;">Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?></span>
+            <button class="btn" onclick="location.reload()" title="Refresh Page" style="padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem;">🔄 Refresh</button>
             <a href="/CURATOR/index.php" class="btn">View Store</a>
             <a href="logout.php" class="btn btn-danger">Logout</a>
         </div>
@@ -619,7 +652,7 @@ if (isset($_GET['error'])) {
                             </td>
                             <td><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
                             <td>
-                                <?php if ($order['status'] === 'cancelled'): ?>
+                                <?php if ($order['status'] === 'cancelled' || $order['status'] === 'returned' || $order['status'] === 'return_denied' || $order['status'] === 'delivered'): ?>
                                     <span class="btn-disabled">Locked</span>
                                 <?php else: ?>
                                     <button class="btn-sm btn-edit" onclick="openOrderModal(<?php echo $order['id']; ?>, '<?php echo $order['status']; ?>')">Update</button>
@@ -686,11 +719,7 @@ if (isset($_GET['error'])) {
                 <div class="form-group">
                     <label for="orderStatus">Order Status</label>
                     <select id="orderStatus" name="order_status" required>
-                        <option value="pending">Pending</option>
-                        <option value="to_ship">To Ship</option>
-                        <option value="to_receive">To Receive</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
                 <button type="submit" name="update_order_status" class="btn-submit">Update Status</button>
@@ -793,7 +822,47 @@ if (isset($_GET['error'])) {
 
         function openOrderModal(orderId, status) {
             document.getElementById('modalOrderId').value = orderId;
-            document.getElementById('orderStatus').value = status;
+            
+            // Define valid status transitions and labels
+            const statusTransitions = {
+                'pending': [
+                    { value: 'to_ship', label: 'To Ship' },
+                    { value: 'cancelled', label: 'Cancel Order' }
+                ],
+                'to_ship': [
+                    { value: 'to_receive', label: 'To Receive' }
+                ],
+                'to_receive': [
+                    { value: 'delivered', label: 'Delivered' }
+                ],
+                'delivered': [],
+                'return_pending': [
+                    { value: 'returned', label: 'Approve Return' },
+                    { value: 'return_denied', label: 'Deny Return' }
+                ],
+                'return_denied': [],
+                'returned': [],
+                'cancelled': []
+            };
+            
+            const statusSelect = document.getElementById('orderStatus');
+            statusSelect.innerHTML = '';
+            
+            const availableStatuses = statusTransitions[status] || [];
+            
+            if (availableStatuses.length === 0) {
+                statusSelect.innerHTML = '<option disabled>No actions available for this status</option>';
+                statusSelect.disabled = true;
+            } else {
+                availableStatuses.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s.value;
+                    option.textContent = s.label;
+                    statusSelect.appendChild(option);
+                });
+                statusSelect.disabled = false;
+            }
+            
             document.getElementById('orderModal').classList.add('active');
         }
 
@@ -886,6 +955,20 @@ if (isset($_GET['error'])) {
             if (event.target === stockModal) {
                 closeStockModal();
             }
+        });
+
+        // Auto-dismiss alerts after 4 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.3s ease';
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, 4000);
+            });
         });
     </script>
 </body>

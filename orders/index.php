@@ -34,12 +34,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
     }
 }
 
+// Handle order return request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_order'])) {
+    $orderToReturn = intval($_POST['order_id']);
+    
+    // Verify order belongs to user and is delivered
+    $stmt = $pdo->prepare('SELECT status FROM orders WHERE id = ? AND user_id = ?');
+    $stmt->execute([$orderToReturn, $userId]);
+    $orderStatus = $stmt->fetch();
+    
+    if ($orderStatus && $orderStatus['status'] === 'delivered') {
+        try {
+            $stmt = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ? AND user_id = ?');
+            $stmt->execute(['return_pending', $orderToReturn, $userId]);
+            $viewOrderId = null; // Reset view to show list
+            $returnSuccess = true;
+        } catch (PDOException $e) {
+            $returnError = true;
+        }
+    }
+}
+
 // Get selected status filter
 $selectedStatus = isset($_GET['status']) ? $_GET['status'] : null;
-$validStatuses = ['pending', 'to_ship', 'to_receive', 'delivered', 'cancelled'];
+$validStatuses = ['pending', 'to_ship', 'to_receive', 'delivered', 'return_pending', 'return_denied', 'returned', 'cancelled'];
 
 // Get all orders for the user, optionally filtered by status
-if ($selectedStatus && in_array($selectedStatus, $validStatuses)) {
+if ($selectedStatus === 'returns_cancelled') {
+    // Show all return and cancelled orders
+    $stmt = $pdo->prepare('SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? AND status IN (?, ?, ?, ?) ORDER BY created_at DESC');
+    $stmt->execute([$userId, 'return_pending', 'return_denied', 'returned', 'cancelled']);
+} elseif ($selectedStatus && in_array($selectedStatus, $validStatuses)) {
     $stmt = $pdo->prepare('SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? AND status = ? ORDER BY created_at DESC');
     $stmt->execute([$userId, $selectedStatus]);
 } else {
@@ -91,8 +116,8 @@ if ($viewOrderId) {
         <a href="?status=delivered" class="status-tab <?php echo $selectedStatus === 'delivered' ? 'active' : ''; ?>">
             Delivered
         </a>
-        <a href="?status=cancelled" class="status-tab <?php echo $selectedStatus === 'cancelled' ? 'active' : ''; ?>">
-            Cancelled
+        <a href="?status=returns_cancelled" class="status-tab <?php echo $selectedStatus === 'returns_cancelled' ? 'active' : ''; ?>">
+            Returns & Cancelled
         </a>
     </div>
 
@@ -218,6 +243,48 @@ if ($viewOrderId) {
                             document.getElementById('cancelModal').style.display = 'none';
                         }
                     </script>
+                <?php endif; ?>
+
+                <?php if ($orderDetails['status'] === 'delivered'): ?>
+                    <div class="cancel-order-section">
+                        <p class="cancel-notice">This order has been delivered. You can request a return if needed.</p>
+                        <button class="btn btn-outline" onclick="confirmReturnOrder(<?php echo $orderDetails['id']; ?>)">Request Return</button>
+                    </div>
+                    
+                    <div id="returnModal" class="modal-overlay" style="display: none;">
+                        <div class="modal">
+                            <div class="modal-content">
+                                <h3>Request Return?</h3>
+                                <p>Are you sure you want to request a return for this order?</p>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="order_id" value="<?php echo $orderDetails['id']; ?>">
+                                    <button type="submit" name="return_order" class="btn">Yes, Request Return</button>
+                                    <button type="button" class="btn btn-outline" onclick="closeReturnModal()">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        function confirmReturnOrder(orderId) {
+                            document.getElementById('returnModal').style.display = 'flex';
+                        }
+                        function closeReturnModal() {
+                            document.getElementById('returnModal').style.display = 'none';
+                        }
+                    </script>
+                <?php endif; ?>
+
+                <?php if ($orderDetails['status'] === 'return_pending'): ?>
+                    <div class="cancel-order-section" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+                        <p class="cancel-notice" style="color: #856404; margin: 0;">⏳ Your return request is pending. We're reviewing it and will get back to you soon.</p>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($orderDetails['status'] === 'return_denied'): ?>
+                    <div class="cancel-order-section" style="background-color: #f8d7da; border-left: 4px solid #dc3545;">
+                        <p class="cancel-notice" style="color: #721c24; margin: 0;">❌ Your return request was not approved. This order remains as delivered. Please contact support if you have any questions.</p>
+                    </div>
                 <?php endif; ?>
 
                 <div class="order-items">
